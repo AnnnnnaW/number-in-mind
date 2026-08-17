@@ -8,7 +8,12 @@
     "userInterfaceStyle": "dark",
     "backgroundColor": "#05070F",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.a-anna.numberinmind",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleDisplayName": "NumberInMind"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -20,6 +25,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d8e61980-6448-46c1-a864-ef256497408d"
+      }
     }
   }
 }
