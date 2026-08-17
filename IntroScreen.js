@@ -357,7 +357,7 @@ function makeStyles(theme) {
     revealNumber: {
       color: theme.accent,
       fontSize: 108,
-      lineHeight: 128,
+      lineHeight: Math.round(108 * theme.numberLineHeight),
       fontFamily: theme.numberFont,
       fontWeight: '600',
       fontVariant: ['tabular-nums'],

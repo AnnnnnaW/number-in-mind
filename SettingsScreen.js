@@ -86,7 +86,17 @@ function FontOption({ font, active, onPress, styles }) {
         pressed && { opacity: 0.6 },
       ]}
     >
-      <Text style={[styles.fontSample, { fontFamily: font.family }]}>123</Text>
+      <Text
+        style={[
+          styles.fontSample,
+          {
+            fontFamily: font.family,
+            lineHeight: Math.round(20 * (font.numberLineHeight ?? 1.2)),
+          },
+        ]}
+      >
+        123
+      </Text>
       <Text style={[styles.fontLabel, active && styles.fontLabelActive]}>{font.label}</Text>
       {active ? <Text style={styles.fontCheck}>✓</Text> : null}
     </Pressable>
