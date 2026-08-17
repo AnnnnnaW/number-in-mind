@@ -1,8 +1,11 @@
 # 数字当てカード（実物カードのスマホ代替）
 
 1〜60 の数字当てカード6枚を、そのままスマホで見せるためのアプリ。
-**アプリは数字を当てない。** YES / NO の入力も、記録も、結果表示も一切ない。
+**手品の本番では、アプリは数字を当てない。** YES / NO の入力も、記録も、結果表示も一切ない。
 当てるのはあなた。アプリはカードを見せるだけ。
+
+初回起動のイントロと種明かし、演者用の練習モードは別扱い（後述）。
+表示は端末の言語に合わせて日本語 / 英語が切り替わる。
 
 ## 遊び方
 
@@ -68,19 +71,42 @@ npx expo run:ios      # macOS + Xcode が必要
 npx expo run:android  # Android Studio が必要
 ```
 
-または EAS Build（`npx eas build -p ios --profile development`）でクラウドビルドする。
+### Web
+
+```bash
+npm run web          # 開発サーバー
+npm run build:web    # dist/ に静的書き出し（Vercel 用の後処理込み）
+```
+
+### TestFlight に上げる
+
+`eas.json` の `production` プロファイルを使う。ビルド番号は `autoIncrement` で自動。
+提出先のアプリは bundle identifier から EAS が照会するので、対話に答えるだけでよい。
+
+```bash
+eas build --platform ios --profile production
+eas submit --platform ios --latest
+```
+
+`build` はクラウドで走るので完了まで待つ（`eas build:list` で状況が見える）。
+`submit --latest` は直前に成功したビルドを送るので、`build` が終わってから実行する。
+バージョン表記（`1.0.0` など）を上げたいときは `app.json` の `expo.version` を変える。
 
 ## 中身
 
 | ファイル | 役割 |
 | --- | --- |
 | `cards.js` | 6枚のカードの中身を**ビット演算で自動生成**（数字のハードコードなし）＋ 色のギミック |
-| `ui.js` | 配色とカードの見た目。本番・練習の両方で使う |
-| `App.js` | イントロ判定とモード選択（はじめる / 練習） |
+| `ui.js` | カードの見た目。本番・練習の両方で使う |
+| `theme.js` | 配色（3種）とフォント（3種）の定義。プラットフォーム別のフォント名もここ |
+| `ThemeContext.js` | 選んだ配色・フォントをアプリ全体に配る |
+| `i18n.js` | 日本語 / 英語の文言と、端末の言語判定 |
+| `App.js` | イントロ判定とモード選択（はじめる / 練習 / 設定） |
 | `IntroScreen.js` | 初回起動のイントロ。アプリのほうが手品をする |
 | `ExplainScreen.js` | 種明かし。ロゴをタップすると開く |
+| `SettingsScreen.js` | 配色とフォントの切り替え |
 | `solve.js` | 「ある」と答えたカードから数字を出す。**イントロと種明かしだけが使う** |
-| `prefs.js` | イントロを見たか・種明かしを見つけたか・当てた数字の保存 |
+| `prefs.js` | イントロを見たか・種明かしを見つけたか・当てた数字・配色とフォントの保存 |
 | `PerformanceScreen.js` | 通常モードの画面。**答えを計算する処理は一切ない** |
 | `PracticeScreen.js` | 練習モードの画面 |
 | `practice.js` | 練習モードの出題と採点。**答えを計算するのはここだけ** |
@@ -158,7 +184,10 @@ npx expo run:android  # Android Studio が必要
 - 直近の履歴
 
 自己ベストを更新すると採点画面にバッジが出る。記録は端末内にのみ保存され、
-残るのは練習の成績だけ（手品の答えは何も保存しない）。設定画面から消せる。
+残るのは練習の成績だけ（手品の答えは何も保存しない）。練習の設定画面の「記録を消す」で消せる。
+
+記録のキーは人数と制限時間の**言語に依存しない ID**（`3` / `pace` など）で持つ。
+日本語のラベルで保存されていた古い記録は、読み込み時に ID へ移行する。
 
 ### 本番と練習の境界
 
@@ -166,10 +195,43 @@ npx expo run:android  # Android Studio が必要
 **`PerformanceScreen.js` からは一切 import していない**。
 
 ```
-PerformanceScreen が読み込むファイル: cards.js, ui.js, PerformanceScreen.js
+PerformanceScreen が読み込むファイル: cards.js, ui.js, ThemeContext.js, i18n.js
 ```
 
 本番の画面に答えを知る手段がないことは、バンドルの依存関係で確認できる。
+
+## 設定（配色とフォント）
+
+起動画面の「設定」から。選ぶとその場で反映され、次回起動時も同じ設定で開く。
+
+- **カードの配色**：ネイビー / レッド / アイボリー（`theme.js` の `PALETTES`）
+- **フォント**：Avenir Next / Georgia / Academy Engraved LET（`theme.js` の `FONTS`）
+- **スリープ防止**：プレイ中、画面を暗くしない（初期値オン）
+
+スリープ防止が効くのは通常モードと練習モードの画面を開いている間だけ。設定は `prefs.js` に
+保存され、`PerformanceScreen.js` / `PracticeScreen.js` が画面を開くときに読んで
+`expo-keep-awake` を有効にし、画面を閉じるときに戻す。
+
+フォント名は OS ごとに違うので、`theme.js` で `process.env.EXPO_OS` を見て出し分けている。
+`Platform.select({ web: ... })` は web ビルドの変換で web キーが落ちてフォント名が消えるため使わない。
+
+## 表示言語
+
+端末の言語が日本語（`ja`）なら日本語、それ以外はすべて英語。切り替え UI は持たない。
+文言はすべて `i18n.js` の辞書にあり、画面側は `t('key')` で引く。
+
+判定には `expo-localization` の `getLocales()` を使う。iOS の `Intl` はアプリが対応を宣言した
+言語しか返さないため、端末が日本語でも Expo Go では英語と判定されてしまう。
+
+```js
+import { t } from './i18n';
+
+t('home.start');                 // はじめる / Start
+t('intro.lead1', { max: 60 });   // 変数は {max} のように埋め込む
+```
+
+文言を足すときは `ja` と `en` の両方に同じキーを書く。
+`en` に無いキーはキー文字列そのものが出るので、追加漏れは画面で分かる。
 
 ## カードの数字を変えたいとき
 
@@ -182,12 +244,12 @@ PerformanceScreen が読み込むファイル: cards.js, ui.js, PerformanceScree
 
 ## 設計メモ
 
-- 結果を計算する関数はアプリ内に**存在しない**。手品の答えはコードのどこにも出てこない
+- 手品の本番の画面には、結果を計算する経路が**存在しない**（`solve.js` / `practice.js` を import しない）
 - 進捗表示（1 / 6 など）は出さない。実物のカードに進捗表示はないため
 - 画面遷移は「右から次のカードが差し込まれる」だけ。派手な演出はしない
 - ステータスバーは非表示、向きは縦固定
-- 端末がスリープすると手品が途切れるので、気になる場合は `npx expo install expo-keep-awake` して
-  `App.js` で `useKeepAwake()` を呼ぶとよい
+- 端末がスリープすると手品や練習が途切れるので、通常モードと練習モードの画面では
+  `expo-keep-awake` で画面を起こしたままにする（設定でオフにできる）
 
 ## まだ入れていないもの
 
