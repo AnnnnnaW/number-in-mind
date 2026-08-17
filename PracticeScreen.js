@@ -1,9 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+
 import { CARDS, MAX_NUMBER } from './cards';
 import { CardFace } from './ui';
 import { useTheme } from './ThemeContext';
+import * as prefs from './prefs';
 import {
   MAX_PLAYERS,
   MIN_PLAYERS,
@@ -22,6 +25,8 @@ import { formatScoreKey, t } from './i18n';
  */
 
 const PHASE = { SETUP: 'setup', CARDS: 'cards', INPUT: 'input', RESULT: 'result' };
+
+const KEEP_AWAKE_TAG = 'number-in-mind:practice';
 
 const KEYPAD = [
   ['1', '2', '3'],
@@ -57,6 +62,29 @@ export default function PracticeScreen({ onExit }) {
     });
     return () => {
       alive = false;
+    };
+  }, []);
+
+  // 練習中もスリープに入ると流れが切れるので、この画面の間だけ画面を起こしておく。
+  // 本番と同じ「スリープ防止」の設定に従う
+  useEffect(() => {
+    let activated = false;
+    let alive = true;
+    prefs.load().then((p) => {
+      if (!alive || !p.keepAwake) return;
+      activateKeepAwakeAsync(KEEP_AWAKE_TAG)
+        .then(() => {
+          activated = true;
+          // 読み込み中に画面を閉じていた場合は、ここで戻す
+          if (!alive) deactivateKeepAwake(KEEP_AWAKE_TAG).catch(() => {});
+        })
+        .catch(() => {
+          // 対応していない環境（Web など）では何もしない
+        });
+    });
+    return () => {
+      alive = false;
+      if (activated) deactivateKeepAwake(KEEP_AWAKE_TAG).catch(() => {});
     };
   }, []);
 

@@ -12,9 +12,12 @@ import {
   useWindowDimensions,
 } from 'react-native';
 
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+
 import { CARDS, MAX_NUMBER } from './cards';
 import { CardFace, Ornament, Surface } from './ui';
 import { useTheme } from './ThemeContext';
+import * as prefs from './prefs';
 import { t } from './i18n';
 
 /**
@@ -35,6 +38,8 @@ import { t } from './i18n';
 
 const END_INDEX = CARDS.length;
 const PAGES = END_INDEX + 1; // カード6枚 + 最後の面
+
+const KEEP_AWAKE_TAG = 'number-in-mind:perform';
 
 const SETTLE_MS = 220;
 const EDGE_RESIST = 0.22; // 端で引っぱったときの重さ
@@ -89,6 +94,29 @@ export default function PerformanceScreen({ onExit }) {
   useEffect(() => {
     offset.setValue(-indexRef.current * width);
   }, [width, offset]);
+
+  // 手品の途中でスリープに入ると演技が途切れるので、この画面の間だけ画面を起こしておく。
+  // 設定でオフにできる。画面を開いたときの設定を使う
+  useEffect(() => {
+    let activated = false;
+    let alive = true;
+    prefs.load().then((p) => {
+      if (!alive || !p.keepAwake) return;
+      activateKeepAwakeAsync(KEEP_AWAKE_TAG)
+        .then(() => {
+          activated = true;
+          // 読み込み中に画面を閉じていた場合は、ここで戻す
+          if (!alive) deactivateKeepAwake(KEEP_AWAKE_TAG).catch(() => {});
+        })
+        .catch(() => {
+          // 対応していない環境（Web など）では何もしない
+        });
+    });
+    return () => {
+      alive = false;
+      if (activated) deactivateKeepAwake(KEEP_AWAKE_TAG).catch(() => {});
+    };
+  }, []);
 
   const settle = useCallback(
     (target) => {
