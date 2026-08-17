@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
@@ -13,24 +13,35 @@ import {
 } from 'react-native';
 
 import { CARDS, MAX_NUMBER } from './cards';
-import { C, CardFace, Ornament, Surface } from './ui';
+import { CardFace, Ornament, Surface } from './ui';
+import { useTheme } from './ThemeContext';
 
 /**
  * 本番用の画面。
  *
- * ここには答えを計算する処理が一切ない。practice.js も import していない。
- * 手品の最中にアプリが答えを知ることはない。
+ * カードは指で横に払ってめくる。指の動きにそのまま追従し、
+ * 一定量まで動かすと抜け、足りなければ元の位置に戻る。
+ *
+ * 7面（カード6枚 + 最後の面）を横一列に並べておき、列全体をずらして見せている。
+ * 面を差し替えるのではなく列の位置を動かすだけなので、
+ * めくった瞬間に数字が描き直されることがない（＝ちらつかない）。
+ *
+ * タップではめくれない。手に持ったまま、相手に見せるとき、渡すときに
+ * 画面に触れてしまっても進まないようにするため。
+ *
+ * ここには答えを計算する処理が一切ない。solve.js も practice.js も import していない。
  */
 
 const END_INDEX = CARDS.length;
+const PAGES = END_INDEX + 1; // カード6枚 + 最後の面
 
-const DURATION_IN = 280;
-const DURATION_OUT = 240;
-const EDGE_WIDTH = 36; // 画面左端から戻れる幅
-const TAP_SLOP = 8;
+const SETTLE_MS = 220;
+const EDGE_RESIST = 0.22; // 端で引っぱったときの重さ
+const SWIPE_RATIO = 0.2; // 画面幅のこれだけ動かせばめくれる
+const SWIPE_VELOCITY = 0.35; // 速く払ったときはこの速度でめくれる
 
 /** 最後の面。数字は出さない */
-function EndFace({ onRestart }) {
+function EndFace({ onRestart, styles }) {
   return (
     <Surface>
       <Ornament />
@@ -59,94 +70,96 @@ function EndFace({ onRestart }) {
 
 export default function PerformanceScreen({ onExit }) {
   const { width } = useWindowDimensions();
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
 
   const [started, setStarted] = useState(false);
   const [index, setIndex] = useState(0);
-  const [incoming, setIncoming] = useState(null); // 右から入ってくる面
-  const [outgoing, setOutgoing] = useState(null); // 右へ抜けていく面
 
-  const slide = useRef(new Animated.Value(0)).current;
+  // 列全体の横位置。中身は常に「-(いま見ている面の番号 × 画面幅)」
+  const offset = useRef(new Animated.Value(0)).current;
   const busy = useRef(false);
-  const stateRef = useRef({ index: 0 });
-  stateRef.current = { index };
+  const indexRef = useRef(0);
+  indexRef.current = index;
+  const widthRef = useRef(width);
+  widthRef.current = width;
 
-  const goNext = useCallback(() => {
-    const cur = stateRef.current.index;
-    if (busy.current || cur >= END_INDEX) return;
-    busy.current = true;
-    setIncoming(cur + 1);
-    slide.setValue(1);
-    Animated.timing(slide, {
-      toValue: 0,
-      duration: DURATION_IN,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    }).start(() => {
-      setIndex(cur + 1);
-      setIncoming(null);
-      busy.current = false;
-    });
-  }, [slide]);
+  // 画面の向きが変わったら位置を測り直す
+  useEffect(() => {
+    offset.setValue(-indexRef.current * width);
+  }, [width, offset]);
 
-  const goBack = useCallback(() => {
-    const cur = stateRef.current.index;
-    if (busy.current || cur <= 0) return;
-    busy.current = true;
-    setOutgoing(cur);
-    slide.setValue(0);
-    Animated.timing(slide, {
-      toValue: 1,
-      duration: DURATION_OUT,
-      easing: Easing.out(Easing.cubic),
+  const settle = useCallback(
+    (target) => {
+      busy.current = true;
+      Animated.timing(offset, {
+        toValue: -target * widthRef.current,
+        duration: SETTLE_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start(() => {
+        // ここで番号を更新しても、列の位置は既に同じ場所にある。
+        // だから画面上は何も動かない＝差し替えが見えない
+        setIndex(target);
+        busy.current = false;
+      });
+    },
+    [offset]
+  );
+
+  const springBack = useCallback(() => {
+    Animated.spring(offset, {
+      toValue: -indexRef.current * widthRef.current,
+      friction: 9,
+      tension: 70,
       useNativeDriver: true,
-    }).start(() => {
-      setIndex(cur - 1);
-      setOutgoing(null);
-      busy.current = false;
-    });
-  }, [slide]);
+    }).start();
+  }, [offset]);
 
   const restart = useCallback(() => {
     if (busy.current) return;
-    setIncoming(null);
-    setOutgoing(null);
-    slide.setValue(0);
+    offset.setValue(0);
     setIndex(0);
     setStarted(false);
-  }, [slide]);
+  }, [offset]);
 
-  const handlers = useRef({ goNext, goBack });
-  handlers.current = { goNext, goBack };
+  const handlers = useRef({ settle, springBack });
+  handlers.current = { settle, springBack };
 
   const responder = useRef(
     PanResponder.create({
-      // 最後の面では子（もう一度）にタップを渡したいので、開始時の横取りをやめる
-      onStartShouldSetPanResponder: () => stateRef.current.index < END_INDEX,
-      onMoveShouldSetPanResponder: (_e, g) => Math.abs(g.dx) > 6 || Math.abs(g.dy) > 6,
-      onPanResponderRelease: (_e, g) => {
-        const isEdgeSwipe = g.x0 < EDGE_WIDTH && g.dx > 48 && Math.abs(g.dy) < 80;
-        const isTap = Math.abs(g.dx) < TAP_SLOP && Math.abs(g.dy) < TAP_SLOP;
-        if (isEdgeSwipe) handlers.current.goBack();
-        else if (isTap) handlers.current.goNext();
+      // タップは拾わない。横に動かしはじめたときだけカードを掴む
+      onStartShouldSetPanResponder: () => false,
+      onMoveShouldSetPanResponder: (_e, g) =>
+        !busy.current && Math.abs(g.dx) > 6 && Math.abs(g.dx) > Math.abs(g.dy),
+
+      onPanResponderMove: (_e, g) => {
+        const i = indexRef.current;
+        let dx = g.dx;
+        // 端では引っぱっても付いてこないようにして、行き止まりを指に伝える
+        if (i <= 0 && dx > 0) dx *= EDGE_RESIST;
+        if (i >= END_INDEX && dx < 0) dx *= EDGE_RESIST;
+        offset.setValue(-i * widthRef.current + dx);
       },
+
+      onPanResponderRelease: (_e, g) => {
+        const i = indexRef.current;
+        const threshold = widthRef.current * SWIPE_RATIO;
+        const forward = g.dx < -threshold || g.vx < -SWIPE_VELOCITY;
+        const backward = g.dx > threshold || g.vx > SWIPE_VELOCITY;
+
+        if (forward && i < END_INDEX) handlers.current.settle(i + 1);
+        else if (backward && i > 0) handlers.current.settle(i - 1);
+        else handlers.current.springBack();
+      },
+
+      onPanResponderTerminate: () => handlers.current.springBack(),
     })
   ).current;
 
-  const translateX = slide.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, width * 1.04],
-  });
-  const rotate = slide.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '3.5deg'],
-  });
-
-  const renderFace = (i) =>
-    i >= END_INDEX ? <EndFace onRestart={restart} /> : <CardFace card={CARDS[i]} />;
-
   if (!started) {
     return (
-      <SafeAreaView style={styles.root}>
+      <SafeAreaView style={styles.introRoot}>
         <Pressable
           onPress={onExit}
           hitSlop={20}
@@ -169,141 +182,171 @@ export default function PerformanceScreen({ onExit }) {
         >
           <Text style={styles.startText}>START</Text>
         </Pressable>
-        <Text style={styles.introHint}>カードは画面をタップするとめくれます</Text>
+        <Text style={styles.introHint}>カードは横に払うとめくれます</Text>
       </SafeAreaView>
     );
   }
 
-  const baseIndex = outgoing !== null ? index - 1 : index;
-  // めくり＝右から差し込む(1→0)、戻し＝右へ抜く(0→1)。どちらも同じ動きの逆再生
-  const movingIndex = incoming !== null ? incoming : outgoing;
-  const movingStyle = { transform: [{ translateX }, { rotate }] };
-
   return (
     <SafeAreaView style={styles.root} {...responder.panHandlers}>
-      <View style={styles.stage}>
-        <View style={StyleSheet.absoluteFill}>{renderFace(baseIndex)}</View>
-        {movingIndex !== null ? (
-          <Animated.View style={[StyleSheet.absoluteFill, styles.moving, movingStyle]}>
-            {renderFace(movingIndex)}
-          </Animated.View>
-        ) : null}
-      </View>
+      <Animated.View
+        style={[styles.row, { width: width * PAGES, transform: [{ translateX: offset }] }]}
+      >
+        {Array.from({ length: PAGES }).map((_, i) => {
+          // 中央から外れているあいだだけ、わずかに傾けて奥に置く
+          const range = [-(i + 1) * width, -i * width, -(i - 1) * width];
+          const rotate = offset.interpolate({
+            inputRange: range,
+            outputRange: ['-4deg', '0deg', '4deg'],
+            extrapolate: 'clamp',
+          });
+          const scale = offset.interpolate({
+            inputRange: range,
+            outputRange: [0.97, 1, 0.97],
+            extrapolate: 'clamp',
+          });
+
+          return (
+            <Animated.View
+              key={i}
+              style={[styles.page, { width, transform: [{ rotate }, { scale }] }]}
+            >
+              {i >= END_INDEX ? (
+                <EndFace onRestart={restart} styles={styles} />
+              ) : (
+                <CardFace card={CARDS[i]} />
+              )}
+            </Animated.View>
+          );
+        })}
+      </Animated.View>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: C.backdrop,
-    paddingHorizontal: 12,
-    paddingVertical: 16,
-    justifyContent: 'center',
-  },
-  stage: { flex: 1 },
+function makeStyles(theme) {
+  return StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: theme.backdrop,
+      paddingVertical: 16,
+      overflow: 'hidden',
+    },
+    introRoot: {
+      flex: 1,
+      backgroundColor: theme.backdrop,
+      paddingHorizontal: 12,
+      paddingVertical: 16,
+      justifyContent: 'center',
+    },
+    row: {
+      flex: 1,
+      flexDirection: 'row',
+    },
+    page: {
+      height: '100%',
+      paddingHorizontal: 12,
+      ...Platform.select({
+        ios: {
+          shadowColor: '#000',
+          shadowOpacity: 0.55,
+          shadowRadius: 20,
+          shadowOffset: { width: -8, height: 0 },
+        },
+        android: { elevation: 14 },
+      }),
+    },
 
-  back: {
-    position: 'absolute',
-    top: 14,
-    left: 18,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  backText: {
-    color: C.inkFaint,
-    fontSize: 30,
-    lineHeight: 34,
-  },
+    back: {
+      position: 'absolute',
+      top: 14,
+      left: 18,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+    },
+    backText: {
+      color: theme.inkFaint,
+      fontSize: 30,
+      lineHeight: 34,
+    },
 
-  moving: {
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOpacity: 0.6,
-        shadowRadius: 22,
-        shadowOffset: { width: -10, height: 0 },
-      },
-      android: { elevation: 20 },
-    }),
-  },
+    endBody: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    endLead: {
+      color: theme.ink,
+      fontSize: 25,
+      lineHeight: 44,
+      letterSpacing: 2,
+      textAlign: 'center',
+    },
+    endDots: {
+      color: theme.accent,
+      fontSize: 40,
+      lineHeight: 56,
+      marginTop: 6,
+      letterSpacing: 4,
+    },
+    restart: {
+      alignSelf: 'center',
+      paddingVertical: 12,
+      paddingHorizontal: 24,
+      marginBottom: 10,
+    },
+    restartText: {
+      color: theme.inkSoft,
+      fontSize: 15,
+      letterSpacing: 3,
+    },
 
-  endBody: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  endLead: {
-    color: C.ink,
-    fontSize: 25,
-    lineHeight: 44,
-    letterSpacing: 2,
-    textAlign: 'center',
-  },
-  endDots: {
-    color: C.gold,
-    fontSize: 40,
-    lineHeight: 56,
-    marginTop: 6,
-    letterSpacing: 4,
-  },
-  restart: {
-    alignSelf: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    marginBottom: 10,
-  },
-  restartText: {
-    color: C.inkSoft,
-    fontSize: 15,
-    letterSpacing: 3,
-  },
-
-  introBody: {
-    alignItems: 'center',
-    paddingHorizontal: 24,
-  },
-  introLead: {
-    color: C.ink,
-    fontSize: 22,
-    lineHeight: 38,
-    letterSpacing: 1.5,
-  },
-  introRule: {
-    width: 56,
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: C.goldFaint,
-    marginVertical: 26,
-  },
-  introSub: {
-    color: C.inkSoft,
-    fontSize: 14,
-    lineHeight: 26,
-    letterSpacing: 1,
-  },
-  startButton: {
-    alignSelf: 'center',
-    marginTop: 48,
-    paddingVertical: 15,
-    paddingHorizontal: 54,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: C.gold,
-  },
-  startText: {
-    color: C.gold,
-    fontSize: 16,
-    letterSpacing: 6,
-    marginLeft: 6,
-  },
-  introHint: {
-    position: 'absolute',
-    bottom: 34,
-    left: 0,
-    right: 0,
-    textAlign: 'center',
-    color: C.inkFaint,
-    fontSize: 12,
-    letterSpacing: 1,
-  },
-});
+    introBody: {
+      alignItems: 'center',
+      paddingHorizontal: 24,
+    },
+    introLead: {
+      color: theme.ink,
+      fontSize: 22,
+      lineHeight: 38,
+      letterSpacing: 1.5,
+    },
+    introRule: {
+      width: 56,
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: theme.accentFaint,
+      marginVertical: 26,
+    },
+    introSub: {
+      color: theme.inkSoft,
+      fontSize: 14,
+      lineHeight: 26,
+      letterSpacing: 1,
+    },
+    startButton: {
+      alignSelf: 'center',
+      marginTop: 48,
+      paddingVertical: 15,
+      paddingHorizontal: 54,
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: theme.accent,
+    },
+    startText: {
+      color: theme.accent,
+      fontSize: 16,
+      letterSpacing: 6,
+      marginLeft: 6,
+    },
+    introHint: {
+      position: 'absolute',
+      bottom: 34,
+      left: 0,
+      right: 0,
+      textAlign: 'center',
+      color: theme.inkFaint,
+      fontSize: 12,
+      letterSpacing: 1,
+    },
+  });
+}
