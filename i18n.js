@@ -154,7 +154,7 @@ const en = {
 
   "intro.hello": "Hello",
   "intro.lead1": "Pick a number",
-  "intro.lead2": "from 1 to {max}",
+  "intro.lead2": "from 1 to 60",
   "intro.lead3": "and keep it in mind",
   "intro.sub1": "I'll show you {count} cards",
   "intro.sub2": 'Tap "Yes" if your number is there',
@@ -175,7 +175,7 @@ const en = {
   "intro.seek": "Find it",
 
   "perform.lead1": "Pick a number",
-  "perform.lead2": "from 1 to {max}",
+  "perform.lead2": "from 1 to 60",
   "perform.lead3": "and keep it in mind",
   "perform.sub1": "I'll show you {count} cards",
   "perform.sub2": 'Say "Yes" if your number is there',
