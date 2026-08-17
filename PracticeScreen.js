@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { CARDS, MAX_NUMBER } from './cards';
-import { C, CardFace, numberFont } from './ui';
+import { CardFace } from './ui';
+import { useTheme } from './ThemeContext';
 import {
   MAX_PLAYERS,
   MIN_PLAYERS,
@@ -29,6 +30,9 @@ const KEYPAD = [
 ];
 
 export default function PracticeScreen({ onExit }) {
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
+
   const [phase, setPhase] = useState(PHASE.SETUP);
   const [players, setPlayers] = useState(3);
   const [limitIndex, setLimitIndex] = useState(0);
@@ -142,7 +146,7 @@ export default function PracticeScreen({ onExit }) {
     const best = scores.best[keyOf(players, limitLabel)];
     return (
       <SafeAreaView style={styles.root}>
-        <BackLink onPress={onExit} />
+        <BackLink onPress={onExit} styles={styles} />
         <ScrollView contentContainerStyle={styles.setupBody}>
           <Text style={styles.h1}>練習</Text>
           <Text style={styles.note}>
@@ -154,7 +158,7 @@ export default function PracticeScreen({ onExit }) {
           <View style={styles.chipRow}>
             {Array.from({ length: MAX_PLAYERS - MIN_PLAYERS + 1 }, (_, i) => i + MIN_PLAYERS).map(
               (n) => (
-                <Chip key={n} active={players === n} onPress={() => setPlayers(n)}>
+                <Chip key={n} active={players === n} onPress={() => setPlayers(n)} styles={styles}>
                   {`${n}人`}
                 </Chip>
               )
@@ -164,7 +168,7 @@ export default function PracticeScreen({ onExit }) {
           <Text style={styles.label}>1枚あたりの時間</Text>
           <View style={styles.chipRow}>
             {TIME_LIMITS.map((t, i) => (
-              <Chip key={t.label} active={limitIndex === i} onPress={() => setLimitIndex(i)}>
+              <Chip key={t.label} active={limitIndex === i} onPress={() => setLimitIndex(i)} styles={styles}>
                 {t.label}
               </Chip>
             ))}
@@ -203,7 +207,7 @@ export default function PracticeScreen({ onExit }) {
                   <Text
                     style={[
                       styles.historyRight,
-                      h.hit === h.total && { color: C.gold },
+                      h.hit === h.total && { color: theme.accent },
                     ]}
                   >
                     {h.hit}/{h.total} ・ {h.seconds.toFixed(1)}秒
@@ -248,7 +252,7 @@ export default function PracticeScreen({ onExit }) {
             {CARDS.map((c, i) => (
               <View
                 key={c.bit}
-                style={[styles.progressDot, i <= cardIndex && { backgroundColor: C.gold }]}
+                style={[styles.progressDot, i <= cardIndex && { backgroundColor: theme.accent }]}
               />
             ))}
           </View>
@@ -328,13 +332,15 @@ export default function PracticeScreen({ onExit }) {
         </Text>
 
         <View style={styles.badgeRow}>
-          {run.isBestTime ? <Badge>自己ベスト</Badge> : null}
-          {run.perfect && scores.streak > 1 ? <Badge>{scores.streak} 連続 全問正解</Badge> : null}
+          {run.isBestTime ? <Badge styles={styles}>自己ベスト</Badge> : null}
+          {run.perfect && scores.streak > 1 ? (
+            <Badge styles={styles}>{scores.streak} 連続 全問正解</Badge>
+          ) : null}
         </View>
 
         {run.results.map((r) => (
           <View style={styles.resultRow} key={r.player}>
-            <Text style={[styles.resultMark, { color: r.correct ? C.gold : '#FF6A5E' }]}>
+            <Text style={[styles.resultMark, { color: r.correct ? theme.accent : theme.no === theme.accent ? theme.accent : '#FF6A5E' }]}>
               {r.correct ? '○' : '×'}
             </Text>
             <Text style={styles.resultName}>{r.player}</Text>
@@ -363,7 +369,7 @@ export default function PracticeScreen({ onExit }) {
   );
 }
 
-function Chip({ active, onPress, children }) {
+function Chip({ active, onPress, children, styles }) {
   return (
     <Pressable
       onPress={onPress}
@@ -374,7 +380,7 @@ function Chip({ active, onPress, children }) {
   );
 }
 
-function Badge({ children }) {
+function Badge({ children, styles }) {
   return (
     <View style={styles.badge}>
       <Text style={styles.badgeText}>{children}</Text>
@@ -382,7 +388,7 @@ function Badge({ children }) {
   );
 }
 
-function BackLink({ onPress }) {
+function BackLink({ onPress, styles }) {
   return (
     <Pressable
       onPress={onPress}
@@ -394,223 +400,225 @@ function BackLink({ onPress }) {
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: C.backdrop,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  fill: { flex: 1 },
-  stage: { flex: 1 },
+function makeStyles(theme) {
+  return StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: theme.backdrop,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+    },
+    fill: { flex: 1 },
+    stage: { flex: 1 },
 
-  back: {
-    position: 'absolute',
-    top: 6,
-    left: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    zIndex: 2,
-  },
-  backText: { color: C.inkFaint, fontSize: 30, lineHeight: 34 },
+    back: {
+      position: 'absolute',
+      top: 6,
+      left: 10,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      zIndex: 2,
+    },
+    backText: { color: theme.inkFaint, fontSize: 30, lineHeight: 34 },
 
-  h1: { color: C.ink, fontSize: 26, letterSpacing: 3, textAlign: 'center', marginBottom: 10 },
-  h2: {
-    color: C.ink,
-    fontSize: 20,
-    letterSpacing: 2,
-    textAlign: 'center',
-    marginTop: 18,
-    marginBottom: 4,
-  },
-  note: {
-    color: C.inkSoft,
-    fontSize: 13,
-    lineHeight: 22,
-    textAlign: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 14,
-  },
-  label: {
-    color: C.gold,
-    fontSize: 12,
-    letterSpacing: 3,
-    marginBottom: 10,
-    marginTop: 18,
-    textAlign: 'center',
-  },
+    h1: { color: theme.ink, fontSize: 26, letterSpacing: 3, textAlign: 'center', marginBottom: 10 },
+    h2: {
+      color: theme.ink,
+      fontSize: 20,
+      letterSpacing: 2,
+      textAlign: 'center',
+      marginTop: 18,
+      marginBottom: 4,
+    },
+    note: {
+      color: theme.inkSoft,
+      fontSize: 13,
+      lineHeight: 22,
+      textAlign: 'center',
+      marginBottom: 20,
+      paddingHorizontal: 14,
+    },
+    label: {
+      color: theme.accent,
+      fontSize: 12,
+      letterSpacing: 3,
+      marginBottom: 10,
+      marginTop: 18,
+      textAlign: 'center',
+    },
 
-  setupBody: { paddingTop: 44, paddingBottom: 40 },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
-  chip: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: C.goldFaint,
-    borderRadius: 999,
-    paddingVertical: 9,
-    paddingHorizontal: 18,
-    margin: 4,
-  },
-  chipActive: { borderColor: C.gold, backgroundColor: 'rgba(201,167,90,0.14)' },
-  chipText: { color: C.inkSoft, fontSize: 14, letterSpacing: 1 },
-  chipTextActive: { color: C.ink },
+    setupBody: { paddingTop: 44, paddingBottom: 40 },
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
+    chip: {
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.accentFaint,
+      borderRadius: 999,
+      paddingVertical: 9,
+      paddingHorizontal: 18,
+      margin: 4,
+    },
+    chipActive: { borderColor: theme.accent, backgroundColor: theme.accentWash14 },
+    chipText: { color: theme.inkSoft, fontSize: 14, letterSpacing: 1 },
+    chipTextActive: { color: theme.ink },
 
-  /* 記録 */
-  record: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 30,
-    paddingVertical: 16,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(245,242,232,0.12)',
-  },
-  recordCell: { flex: 1, alignItems: 'center' },
-  recordDivider: {
-    width: StyleSheet.hairlineWidth,
-    height: 30,
-    backgroundColor: 'rgba(245,242,232,0.12)',
-  },
-  recordValue: {
-    color: C.ink,
-    fontSize: 24,
-    fontFamily: numberFont,
-    fontWeight: '600',
-    fontVariant: ['tabular-nums'],
-  },
-  recordCaption: { color: C.inkFaint, fontSize: 10, letterSpacing: 1, marginTop: 4 },
+    /* 記録 */
+    record: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 30,
+      paddingVertical: 16,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.inkLine,
+    },
+    recordCell: { flex: 1, alignItems: 'center' },
+    recordDivider: {
+      width: StyleSheet.hairlineWidth,
+      height: 30,
+      backgroundColor: theme.inkLine,
+    },
+    recordValue: {
+      color: theme.ink,
+      fontSize: 24,
+      fontFamily: theme.numberFont,
+      fontWeight: '600',
+      fontVariant: ['tabular-nums'],
+    },
+    recordCaption: { color: theme.inkFaint, fontSize: 10, letterSpacing: 1, marginTop: 4 },
 
-  historyRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 7,
-    paddingHorizontal: 10,
-  },
-  historyLeft: { color: C.inkSoft, fontSize: 12, letterSpacing: 1 },
-  historyRight: { color: C.inkSoft, fontSize: 12, letterSpacing: 1 },
-  clearText: { color: C.inkFaint, fontSize: 12, letterSpacing: 2 },
+    historyRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: 7,
+      paddingHorizontal: 10,
+    },
+    historyLeft: { color: theme.inkSoft, fontSize: 12, letterSpacing: 1 },
+    historyRight: { color: theme.inkSoft, fontSize: 12, letterSpacing: 1 },
+    clearText: { color: theme.inkFaint, fontSize: 12, letterSpacing: 2 },
 
-  primary: {
-    alignSelf: 'center',
-    marginTop: 34,
-    paddingVertical: 15,
-    paddingHorizontal: 52,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: C.gold,
-  },
-  primaryText: { color: C.gold, fontSize: 16, letterSpacing: 4, marginLeft: 4 },
-  secondary: { alignSelf: 'center', marginTop: 16, padding: 12 },
-  secondaryText: { color: C.inkSoft, fontSize: 14, letterSpacing: 2 },
+    primary: {
+      alignSelf: 'center',
+      marginTop: 34,
+      paddingVertical: 15,
+      paddingHorizontal: 52,
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: theme.accent,
+    },
+    primaryText: { color: theme.accent, fontSize: 16, letterSpacing: 4, marginLeft: 4 },
+    secondary: { alignSelf: 'center', marginTop: 16, padding: 12 },
+    secondaryText: { color: theme.inkSoft, fontSize: 14, letterSpacing: 2 },
 
-  /* 回答バー */
-  answerBar: { flexDirection: 'row', justifyContent: 'center', marginTop: 12 },
-  answerCell: { alignItems: 'center', minWidth: 62, paddingHorizontal: 4 },
-  answerName: { color: C.gold, fontSize: 11, letterSpacing: 2, marginBottom: 3 },
-  answerValue: { fontSize: 20, letterSpacing: 1, fontWeight: '600' },
-  answerYes: { color: C.yes },
-  answerNo: { color: C.no },
+    /* 回答バー */
+    answerBar: { flexDirection: 'row', justifyContent: 'center', marginTop: 12 },
+    answerCell: { alignItems: 'center', minWidth: 62, paddingHorizontal: 4 },
+    answerName: { color: theme.accent, fontSize: 11, letterSpacing: 2, marginBottom: 3 },
+    answerValue: { fontSize: 20, letterSpacing: 1, fontWeight: '600' },
+    answerYes: { color: theme.yes },
+    answerNo: { color: theme.no },
 
-  progress: { flexDirection: 'row', justifyContent: 'center', marginTop: 12, marginBottom: 2 },
-  progressDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 3,
-    marginHorizontal: 4,
-    backgroundColor: 'rgba(201,167,90,0.22)',
-  },
+    progress: { flexDirection: 'row', justifyContent: 'center', marginTop: 12, marginBottom: 2 },
+    progressDot: {
+      width: 5,
+      height: 5,
+      borderRadius: 3,
+      marginHorizontal: 4,
+      backgroundColor: theme.accentWash22,
+    },
 
-  /* 入力 */
-  slotRow: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', marginVertical: 18 },
-  slot: {
-    alignItems: 'center',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: C.goldFaint,
-    borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    margin: 4,
-    minWidth: 60,
-  },
-  slotActive: { borderColor: C.gold, backgroundColor: 'rgba(201,167,90,0.12)' },
-  slotName: { color: C.gold, fontSize: 11, letterSpacing: 2 },
-  slotValue: {
-    color: C.ink,
-    fontSize: 28,
-    fontFamily: numberFont,
-    fontWeight: '600',
-    fontVariant: ['tabular-nums'],
-  },
+    /* 入力 */
+    slotRow: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', marginVertical: 18 },
+    slot: {
+      alignItems: 'center',
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.accentFaint,
+      borderRadius: 12,
+      paddingVertical: 10,
+      paddingHorizontal: 14,
+      margin: 4,
+      minWidth: 60,
+    },
+    slotActive: { borderColor: theme.accent, backgroundColor: theme.accentWash12 },
+    slotName: { color: theme.accent, fontSize: 11, letterSpacing: 2 },
+    slotValue: {
+      color: theme.ink,
+      fontSize: 28,
+      fontFamily: theme.numberFont,
+      fontWeight: '600',
+      fontVariant: ['tabular-nums'],
+    },
 
-  keypad: { marginTop: 'auto' },
-  keyRow: { flexDirection: 'row' },
-  key: {
-    flex: 1,
-    margin: 5,
-    paddingVertical: 15,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-  },
-  keyText: {
-    color: C.ink,
-    fontSize: 24,
-    fontFamily: numberFont,
-    fontWeight: '600',
-  },
-  keyNext: { backgroundColor: 'rgba(255,255,255,0.03)' },
-  keyNextText: { color: C.inkSoft, fontSize: 14, letterSpacing: 1, fontWeight: '400' },
+    keypad: { marginTop: 'auto' },
+    keyRow: { flexDirection: 'row' },
+    key: {
+      flex: 1,
+      margin: 5,
+      paddingVertical: 15,
+      borderRadius: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.inkWash05,
+    },
+    keyText: {
+      color: theme.ink,
+      fontSize: 24,
+      fontFamily: theme.numberFont,
+      fontWeight: '600',
+    },
+    keyNext: { backgroundColor: theme.inkWash05 },
+    keyNextText: { color: theme.inkSoft, fontSize: 14, letterSpacing: 1, fontWeight: '400' },
 
-  submit: {
-    marginHorizontal: 5,
-    marginTop: 8,
-    paddingVertical: 15,
-    borderRadius: 14,
-    alignItems: 'center',
-    backgroundColor: 'rgba(201,167,90,0.18)',
-    borderWidth: 1,
-    borderColor: C.gold,
-  },
-  submitText: { color: C.gold, fontSize: 17, letterSpacing: 4, marginLeft: 4 },
-  inputHint: {
-    color: C.inkFaint,
-    fontSize: 11,
-    textAlign: 'center',
-    marginTop: 10,
-    letterSpacing: 0.5,
-  },
+    submit: {
+      marginHorizontal: 5,
+      marginTop: 8,
+      paddingVertical: 15,
+      borderRadius: 14,
+      alignItems: 'center',
+      backgroundColor: theme.accentWash18,
+      borderWidth: 1,
+      borderColor: theme.accent,
+    },
+    submitText: { color: theme.accent, fontSize: 17, letterSpacing: 4, marginLeft: 4 },
+    inputHint: {
+      color: theme.inkFaint,
+      fontSize: 11,
+      textAlign: 'center',
+      marginTop: 10,
+      letterSpacing: 0.5,
+    },
 
-  /* 採点 */
-  resultBody: { paddingTop: 30, paddingBottom: 40 },
-  badgeRow: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', marginBottom: 14 },
-  badge: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: C.gold,
-    borderRadius: 999,
-    paddingVertical: 5,
-    paddingHorizontal: 14,
-    margin: 4,
-  },
-  badgeText: { color: C.gold, fontSize: 11, letterSpacing: 2 },
-  resultRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(245,242,232,0.12)',
-    paddingVertical: 14,
-    paddingHorizontal: 8,
-  },
-  resultMark: { fontSize: 20, width: 28 },
-  resultName: { color: C.gold, fontSize: 13, letterSpacing: 2, width: 26 },
-  resultNumbers: { flex: 1 },
-  resultTarget: {
-    color: C.ink,
-    fontSize: 26,
-    fontFamily: numberFont,
-    fontWeight: '600',
-    fontVariant: ['tabular-nums'],
-  },
-  resultBreakdown: { color: C.inkSoft, fontSize: 12, letterSpacing: 1, marginTop: 2 },
-  resultYours: { color: '#FF6A5E', fontSize: 12, letterSpacing: 1 },
-});
+    /* 採点 */
+    resultBody: { paddingTop: 30, paddingBottom: 40 },
+    badgeRow: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', marginBottom: 14 },
+    badge: {
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.accent,
+      borderRadius: 999,
+      paddingVertical: 5,
+      paddingHorizontal: 14,
+      margin: 4,
+    },
+    badgeText: { color: theme.accent, fontSize: 11, letterSpacing: 2 },
+    resultRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.inkLine,
+      paddingVertical: 14,
+      paddingHorizontal: 8,
+    },
+    resultMark: { fontSize: 20, width: 28 },
+    resultName: { color: theme.accent, fontSize: 13, letterSpacing: 2, width: 26 },
+    resultNumbers: { flex: 1 },
+    resultTarget: {
+      color: theme.ink,
+      fontSize: 26,
+      fontFamily: theme.numberFont,
+      fontWeight: '600',
+      fontVariant: ['tabular-nums'],
+    },
+    resultBreakdown: { color: theme.inkSoft, fontSize: 12, letterSpacing: 1, marginTop: 2 },
+    resultYours: { color: '#FF6A5E', fontSize: 12, letterSpacing: 1 },
+  });
+}
