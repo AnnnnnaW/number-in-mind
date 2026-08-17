@@ -71,12 +71,14 @@ export const FONTS = {
     label: 'Georgia',
     family: Platform.select({ ios: 'Georgia', android: 'serif', default: undefined }),
   },
-  rounded: {
-    id: 'rounded',
-    label: 'まるっこい',
+  engraved: {
+    id: 'engraved',
+    label: '刻印',
     family: Platform.select({
-      ios: 'Arial Rounded MT Bold',
-      android: 'sans-serif-rounded',
+      // iOS の「Academy Engraved LET」は、家族名ではなくこの PostScript 名でないと
+      // 見つからないことがあるための指定（iosfonts.com 等で確認できる正式名）
+      ios: 'AcademyEngravedLetPlain',
+      android: 'serif',
       default: undefined,
     }),
   },
