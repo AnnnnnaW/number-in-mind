@@ -71,10 +71,14 @@ export const FONTS = {
     label: 'Georgia',
     family: Platform.select({ ios: 'Georgia', android: 'serif', default: undefined }),
   },
-  menlo: {
-    id: 'menlo',
-    label: 'Menlo',
-    family: Platform.select({ ios: 'Menlo', android: 'monospace', default: undefined }),
+  rounded: {
+    id: 'rounded',
+    label: 'まるっこい',
+    family: Platform.select({
+      ios: 'Arial Rounded MT Bold',
+      android: 'sans-serif-rounded',
+      default: undefined,
+    }),
   },
 };
 
