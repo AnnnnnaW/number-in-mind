@@ -1,8 +1,16 @@
-import React, { useMemo } from 'react';
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useMemo } from "react";
+import {
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
-import { FONTS, PALETTES } from './theme';
-import { useThemeSettings } from './ThemeContext';
+import { FONTS, PALETTES } from "./theme";
+import { useThemeSettings } from "./ThemeContext";
+import { t } from "./i18n";
 
 /**
  * 設定画面。
@@ -15,16 +23,17 @@ import { useThemeSettings } from './ThemeContext';
  */
 
 export default function SettingsScreen({ onExit }) {
-  const { theme, paletteId, fontId, setPaletteId, setFontId } = useThemeSettings();
+  const { theme, paletteId, fontId, setPaletteId, setFontId } =
+    useThemeSettings();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
   return (
     <SafeAreaView style={styles.root}>
       <BackLink onPress={onExit} styles={styles} />
       <ScrollView contentContainerStyle={styles.body}>
-        <Text style={styles.h1}>設定</Text>
+        <Text style={styles.h1}>{t("settings.title")}</Text>
 
-        <Text style={styles.label}>カードの配色</Text>
+        <Text style={styles.label}>{t("settings.palette")}</Text>
         <View style={styles.paletteRow}>
           {Object.values(PALETTES).map((p) => (
             <PaletteOption
@@ -37,7 +46,7 @@ export default function SettingsScreen({ onExit }) {
           ))}
         </View>
 
-        <Text style={styles.label}>フォント</Text>
+        <Text style={styles.label}>{t("settings.font")}</Text>
         <View style={styles.fontColumn}>
           {Object.values(FONTS).map((f) => (
             <FontOption
@@ -50,7 +59,7 @@ export default function SettingsScreen({ onExit }) {
           ))}
         </View>
 
-        <Text style={styles.note}>選ぶとその場で反映されます。次回起動時も同じ設定で開きます。</Text>
+        <Text style={styles.note}>{t("settings.note")}</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -66,12 +75,29 @@ function PaletteOption({ palette, active, onPress, styles }) {
         pressed && { opacity: 0.7 },
       ]}
     >
-      <View style={[styles.paletteSwatch, { backgroundColor: palette.backdrop }]}>
-        <View style={[styles.paletteSwatchCard, { backgroundColor: palette.cardBottom, borderColor: palette.accent }]}>
-          <View style={[styles.paletteSwatchDot, { backgroundColor: palette.accent }]} />
+      <View
+        style={[styles.paletteSwatch, { backgroundColor: palette.backdrop }]}
+      >
+        <View
+          style={[
+            styles.paletteSwatchCard,
+            {
+              backgroundColor: palette.cardBottom,
+              borderColor: palette.accent,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.paletteSwatchDot,
+              { backgroundColor: palette.accent },
+            ]}
+          />
         </View>
       </View>
-      <Text style={[styles.paletteLabel, active && styles.paletteLabelActive]}>{palette.label}</Text>
+      <Text style={[styles.paletteLabel, active && styles.paletteLabelActive]}>
+        {t(`palette.${palette.id}`)}
+      </Text>
     </Pressable>
   );
 }
@@ -86,18 +112,23 @@ function FontOption({ font, active, onPress, styles }) {
         pressed && { opacity: 0.6 },
       ]}
     >
-      <Text
-        style={[
-          styles.fontSample,
-          {
-            fontFamily: font.family,
-            lineHeight: Math.round(20 * (font.numberLineHeight ?? 1.2)),
-          },
-        ]}
-      >
-        123
+      {/* プレビューは全書体で同じ枠サイズ。カード用 numberLineHeight は使わない */}
+      <View style={styles.fontSampleWrap}>
+        <Text
+          style={[
+            styles.fontSample,
+            { fontFamily: font.family },
+            // 字面が上寄りのメトリクスを持つ書体は、プレビューだけ下にずらして揃える
+            font.id === "engraved" && styles.fontSampleOpticalDown,
+          ]}
+          allowFontScaling={false}
+        >
+          123
+        </Text>
+      </View>
+      <Text style={[styles.fontLabel, active && styles.fontLabelActive]}>
+        {font.label}
       </Text>
-      <Text style={[styles.fontLabel, active && styles.fontLabelActive]}>{font.label}</Text>
       {active ? <Text style={styles.fontCheck}>✓</Text> : null}
     </Pressable>
   );
@@ -121,7 +152,7 @@ function makeStyles(theme) {
     body: { paddingTop: 44, paddingBottom: 50, paddingHorizontal: 28 },
 
     back: {
-      position: 'absolute',
+      position: "absolute",
       top: 14,
       left: 18,
       paddingHorizontal: 10,
@@ -130,7 +161,13 @@ function makeStyles(theme) {
     },
     backText: { color: theme.inkFaint, fontSize: 30, lineHeight: 34 },
 
-    h1: { color: theme.ink, fontSize: 22, letterSpacing: 4, textAlign: 'center', marginBottom: 8 },
+    h1: {
+      color: theme.ink,
+      fontSize: 22,
+      letterSpacing: 4,
+      textAlign: "center",
+      marginBottom: 8,
+    },
 
     label: {
       color: theme.accent,
@@ -138,42 +175,50 @@ function makeStyles(theme) {
       letterSpacing: 3,
       marginTop: 30,
       marginBottom: 14,
-      textAlign: 'center',
+      textAlign: "center",
     },
 
-    paletteRow: { flexDirection: 'row', justifyContent: 'center' },
+    paletteRow: { flexDirection: "row", justifyContent: "center" },
     paletteCard: {
-      alignItems: 'center',
+      alignItems: "center",
       marginHorizontal: 8,
       padding: 8,
       borderRadius: 14,
       borderWidth: 1,
-      borderColor: 'transparent',
+      borderColor: "transparent",
     },
-    paletteCardActive: { borderColor: theme.accent, backgroundColor: theme.accentWash10 },
+    paletteCardActive: {
+      borderColor: theme.accent,
+      backgroundColor: theme.accentWash10,
+    },
     paletteSwatch: {
       width: 64,
       height: 64,
       borderRadius: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
     paletteSwatchCard: {
       width: 40,
       height: 40,
       borderRadius: 8,
       borderWidth: 1.5,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
     paletteSwatchDot: { width: 8, height: 8, borderRadius: 4 },
-    paletteLabel: { color: theme.inkSoft, fontSize: 12, letterSpacing: 1, marginTop: 10 },
+    paletteLabel: {
+      color: theme.inkSoft,
+      fontSize: 12,
+      letterSpacing: 1,
+      marginTop: 10,
+    },
     paletteLabelActive: { color: theme.ink },
 
-    fontColumn: { alignSelf: 'stretch' },
+    fontColumn: { alignSelf: "stretch" },
     fontRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: theme.inkLine,
       borderRadius: 12,
@@ -181,14 +226,34 @@ function makeStyles(theme) {
       paddingHorizontal: 18,
       marginBottom: 10,
     },
-    fontRowActive: { borderColor: theme.accent, backgroundColor: theme.accentWash10 },
+    fontRowActive: {
+      borderColor: theme.accent,
+      backgroundColor: theme.accentWash10,
+    },
+    fontSampleWrap: {
+      width: 44,
+      height: 24,
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "visible",
+    },
     fontSample: {
       color: theme.ink,
       fontSize: 20,
-      fontVariant: ['tabular-nums'],
-      width: 44,
+      lineHeight: 24,
+      fontVariant: ["tabular-nums"],
+      textAlign: "center",
+      includeFontPadding: false,
     },
-    fontLabel: { color: theme.inkSoft, fontSize: 14, letterSpacing: 1, flex: 1 },
+    fontSampleOpticalDown: {
+      transform: [{ translateY: 4 }],
+    },
+    fontLabel: {
+      color: theme.inkSoft,
+      fontSize: 14,
+      letterSpacing: 1,
+      flex: 1,
+    },
     fontLabelActive: { color: theme.ink },
     fontCheck: { color: theme.accent, fontSize: 16 },
 
@@ -196,7 +261,7 @@ function makeStyles(theme) {
       color: theme.inkFaint,
       fontSize: 11,
       lineHeight: 20,
-      textAlign: 'center',
+      textAlign: "center",
       marginTop: 34,
       paddingHorizontal: 10,
     },

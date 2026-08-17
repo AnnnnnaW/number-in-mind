@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 
 import { ThemeProvider, useTheme } from './ThemeContext';
 import * as prefs from './prefs';
+import { t } from './i18n';
 import PerformanceScreen from './PerformanceScreen';
 import PracticeScreen from './PracticeScreen';
 import IntroScreen from './IntroScreen';
@@ -184,14 +185,14 @@ function AppInner() {
         onPress={() => setMode(MODE.PERFORM)}
         style={({ pressed }) => [styles.primary, pressed && { opacity: 0.55 }]}
       >
-        <Text style={styles.primaryText}>はじめる</Text>
+        <Text style={styles.primaryText}>{t('home.start')}</Text>
       </Pressable>
 
       <Pressable
         onPress={() => setMode(MODE.PRACTICE)}
         style={({ pressed }) => [styles.secondary, pressed && { opacity: 0.5 }]}
       >
-        <Text style={styles.secondaryText}>練習</Text>
+        <Text style={styles.secondaryText}>{t('home.practice')}</Text>
       </Pressable>
 
       <Pressable
@@ -199,7 +200,7 @@ function AppInner() {
         hitSlop={10}
         style={({ pressed }) => [styles.footerLink, pressed && { opacity: 0.5 }]}
       >
-        <Text style={styles.footerLinkText}>設定</Text>
+        <Text style={styles.footerLinkText}>{t('home.settings')}</Text>
       </Pressable>
     </SafeAreaView>
   );

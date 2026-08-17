@@ -14,6 +14,7 @@ import { CARDS, MAX_NUMBER } from './cards';
 import { CardFace } from './ui';
 import { useTheme } from './ThemeContext';
 import { sumOf } from './solve';
+import { t } from './i18n';
 
 /**
  * イントロ。初回起動のときだけ出る。
@@ -121,22 +122,22 @@ export default function IntroScreen({ onFinish, onSkip }) {
     return (
       <SafeAreaView style={styles.root}>
         <View style={styles.introBody}>
-          <Text style={styles.introSmall}>はじめまして</Text>
+          <Text style={styles.introSmall}>{t('intro.hello')}</Text>
           <View style={styles.introRule} />
-          <Text style={styles.introLead}>1 〜 {MAX_NUMBER} の中から</Text>
-          <Text style={styles.introLead}>好きな数字をひとつ</Text>
-          <Text style={styles.introLead}>思い浮かべてください</Text>
+          <Text style={styles.introLead}>{t('intro.lead1', { max: MAX_NUMBER })}</Text>
+          <Text style={styles.introLead}>{t('intro.lead2')}</Text>
+          <Text style={styles.introLead}>{t('intro.lead3')}</Text>
           <View style={styles.introRule} />
-          <Text style={styles.introSub}>{CARDS.length} 枚のカードをお見せします</Text>
-          <Text style={styles.introSub}>その数字があれば「ある」</Text>
-          <Text style={styles.introSub}>なければ「ない」を押してください</Text>
+          <Text style={styles.introSub}>{t('intro.sub1', { count: CARDS.length })}</Text>
+          <Text style={styles.introSub}>{t('intro.sub2')}</Text>
+          <Text style={styles.introSub}>{t('intro.sub3')}</Text>
         </View>
 
         <Pressable
           onPress={() => setPhase(PHASE.ASKING)}
           style={({ pressed }) => [styles.startButton, pressed && { opacity: 0.55 }]}
         >
-          <Text style={styles.startText}>はじめる</Text>
+          <Text style={styles.startText}>{t('common.start')}</Text>
         </Pressable>
 
         <Pressable
@@ -144,7 +145,7 @@ export default function IntroScreen({ onFinish, onSkip }) {
           hitSlop={16}
           style={({ pressed }) => [styles.skip, pressed && { opacity: 0.4 }]}
         >
-          <Text style={styles.skipText}>仕組みを知っているのでスキップ</Text>
+          <Text style={styles.skipText}>{t('intro.skip')}</Text>
         </Pressable>
       </SafeAreaView>
     );
@@ -175,20 +176,20 @@ export default function IntroScreen({ onFinish, onSkip }) {
           ))}
         </View>
 
-        <Text style={styles.question}>この中にありますか？</Text>
+        <Text style={styles.question}>{t('intro.question')}</Text>
 
         <View style={styles.choices}>
           <Pressable
             onPress={() => answer(true)}
             style={({ pressed }) => [styles.choice, pressed && { opacity: 0.6 }]}
           >
-            <Text style={styles.choiceText}>ある</Text>
+            <Text style={styles.choiceText}>{t('common.yes')}</Text>
           </Pressable>
           <Pressable
             onPress={() => answer(false)}
             style={({ pressed }) => [styles.choice, pressed && { opacity: 0.6 }]}
           >
-            <Text style={styles.choiceText}>ない</Text>
+            <Text style={styles.choiceText}>{t('common.no')}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -204,11 +205,11 @@ export default function IntroScreen({ onFinish, onSkip }) {
       return (
         <SafeAreaView style={styles.root}>
           <View style={styles.introBody}>
-            <Text style={styles.introLead}>おや</Text>
+            <Text style={styles.introLead}>{t('intro.oops')}</Text>
             <View style={styles.introRule} />
-            <Text style={styles.introSub}>すべて「ない」と答えられると</Text>
-            <Text style={styles.introSub}>さすがに分かりません</Text>
-            <Text style={styles.introSub}>もう一度お願いします</Text>
+            <Text style={styles.introSub}>{t('intro.allNo1')}</Text>
+            <Text style={styles.introSub}>{t('intro.allNo2')}</Text>
+            <Text style={styles.introSub}>{t('intro.allNo3')}</Text>
           </View>
           <Pressable
             onPress={() => {
@@ -218,7 +219,7 @@ export default function IntroScreen({ onFinish, onSkip }) {
             }}
             style={({ pressed }) => [styles.startButton, pressed && { opacity: 0.55 }]}
           >
-            <Text style={styles.startText}>もう一度</Text>
+            <Text style={styles.startText}>{t('common.again')}</Text>
           </Pressable>
         </SafeAreaView>
       );
@@ -232,7 +233,7 @@ export default function IntroScreen({ onFinish, onSkip }) {
       >
         <SafeAreaView style={styles.revealBody}>
           <Animated.Text style={[styles.revealLead, { opacity: titleIn }]}>
-            あなたが思い浮かべたのは
+            {t('intro.revealLead')}
           </Animated.Text>
 
           <Animated.Text
@@ -261,10 +262,12 @@ export default function IntroScreen({ onFinish, onSkip }) {
             {number}
           </Animated.Text>
 
-          <Animated.Text style={[styles.revealTail, { opacity: tailIn }]}>ですね？</Animated.Text>
+          <Animated.Text style={[styles.revealTail, { opacity: tailIn }]}>
+            {t('intro.revealTail')}
+          </Animated.Text>
 
           <Animated.Text style={[styles.revealHint, { opacity: tailIn }]}>
-            画面をタップ
+            {t('intro.tap')}
           </Animated.Text>
         </SafeAreaView>
       </Pressable>
@@ -275,18 +278,18 @@ export default function IntroScreen({ onFinish, onSkip }) {
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.introBody}>
-        <Text style={styles.teaseLead}>なぜ、あなたの数字が分かったのか？</Text>
+        <Text style={styles.teaseLead}>{t('intro.teaseLead')}</Text>
         <View style={styles.introRule} />
-        <Text style={styles.teaseSub}>その秘密は、このアプリの中に隠されています。</Text>
-        <Text style={styles.teaseSub}>秘密を解き明かしたら、</Text>
-        <Text style={styles.teaseSub}>今度はあなたが誰かの数字を当ててみましょう。</Text>
+        <Text style={styles.teaseSub}>{t('intro.tease1')}</Text>
+        <Text style={styles.teaseSub}>{t('intro.tease2')}</Text>
+        <Text style={styles.teaseSub}>{t('intro.tease3')}</Text>
       </View>
 
       <Pressable
         onPress={() => onFinish(number)}
         style={({ pressed }) => [styles.startButton, pressed && { opacity: 0.55 }]}
       >
-        <Text style={styles.startText}>探す</Text>
+        <Text style={styles.startText}>{t('intro.seek')}</Text>
       </Pressable>
     </SafeAreaView>
   );

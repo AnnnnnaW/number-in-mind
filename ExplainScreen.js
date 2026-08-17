@@ -3,6 +3,7 @@ import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'rea
 
 import { BITS, MAX_NUMBER } from './cards';
 import { useTheme } from './ThemeContext';
+import { t } from './i18n';
 
 /**
  * 種明かし。ロゴをタップすると開く。
@@ -25,16 +26,18 @@ export default function ExplainScreen({ number, onClose, onReplayIntro }) {
   return (
     <SafeAreaView style={styles.root}>
       <ScrollView contentContainerStyle={styles.body}>
-        <Text style={styles.eyebrow}>見つけましたね</Text>
-        <Text style={styles.title}>種明かし</Text>
+        <Text style={styles.eyebrow}>{t('explain.eyebrow')}</Text>
+        <Text style={styles.title}>{t('explain.title')}</Text>
 
-        <Text style={styles.big}>「ある」と答えたカードの</Text>
-        <Text style={styles.big}>一番左上の数字を</Text>
-        <Text style={styles.big}>足していくだけです。</Text>
+        <Text style={styles.big}>{t('explain.big1')}</Text>
+        <Text style={styles.big}>{t('explain.big2')}</Text>
+        <Text style={styles.big}>{t('explain.big3')}</Text>
 
         <View style={styles.exampleBox}>
           <Text style={styles.exampleLead}>
-            {mine ? 'さっきのあなたの答え' : `たとえば ${SAMPLE} を思い浮かべた人の答え`}
+            {mine
+              ? t('explain.exampleMine')
+              : t('explain.exampleSample', { sample: SAMPLE })}
           </Text>
 
           <View style={styles.cardRow}>
@@ -44,7 +47,7 @@ export default function ExplainScreen({ number, onClose, onReplayIntro }) {
                 <View style={[styles.miniCard, yes && styles.miniCardYes]} key={bit}>
                   <Text style={[styles.miniNumber, yes && styles.miniNumberYes]}>{bit}</Text>
                   <Text style={[styles.miniLabel, yes && styles.miniLabelYes]}>
-                    {yes ? 'ある' : 'ない'}
+                    {yes ? t('common.yes') : t('common.no')}
                   </Text>
                 </View>
               );
@@ -65,47 +68,41 @@ export default function ExplainScreen({ number, onClose, onReplayIntro }) {
           </View>
         </View>
 
-        <Text style={styles.p}>
-          カードの左上の数字は、6枚それぞれ 1 / 2 / 4 / 8 / 16 / 32。
-          覚える必要はありません。カードに書いてあります。
-        </Text>
+        <Text style={styles.p}>{t('explain.p1')}</Text>
 
-        <Text style={styles.h}>なぜこれで当たるのか</Text>
+        <Text style={styles.h}>{t('explain.hWhy')}</Text>
         <Text style={styles.p}>
-          この 6 つの数字は、いわゆる<Text style={styles.em}>2進数</Text>です。
-          1 〜 {MAX_NUMBER} のどんな数字も、この 6 つの足し算で
-          <Text style={styles.em}>ただ1通りにしか表せません</Text>。
+          {t('explain.p2a')}
+          <Text style={styles.em}>{t('explain.p2b')}</Text>
+          {t('explain.p2c', { max: MAX_NUMBER })}
+          <Text style={styles.em}>{t('explain.p2d')}</Text>
+          {t('explain.p2e')}
         </Text>
-        <Text style={styles.p}>
-          そして各カードには、その数字を作るのにそのカードが必要になる数字だけが載っています。
-          だから「ある / ない」の答え方が同じになる数字は 2 つとなく、必ず当たります。
-        </Text>
+        <Text style={styles.p}>{t('explain.p3')}</Text>
         <Text style={styles.note}>
-          {target} は2進数で {binary}。あなたの「ある / ない」は、そのまま この 1 と 0 です。
+          {t('explain.note', { target, binary })}
         </Text>
 
-        <Text style={styles.h}>赤や緑の数字には意味がある？</Text>
-        <Text style={styles.p}>
-          ありません。相手に法則を探させるための飾りです。
-        </Text>
+        <Text style={styles.h}>{t('explain.hColor')}</Text>
+        <Text style={styles.p}>{t('explain.pColor')}</Text>
 
         <View style={styles.closing}>
-          <Text style={styles.closingText}>これであなたも同じことができます。</Text>
-          <Text style={styles.closingText}>今度はあなたが、誰かの心を読む番です。</Text>
+          <Text style={styles.closingText}>{t('explain.closing1')}</Text>
+          <Text style={styles.closingText}>{t('explain.closing2')}</Text>
         </View>
 
         <Pressable
           onPress={onClose}
           style={({ pressed }) => [styles.primary, pressed && { opacity: 0.55 }]}
         >
-          <Text style={styles.primaryText}>閉じる</Text>
+          <Text style={styles.primaryText}>{t('common.close')}</Text>
         </Pressable>
 
         <Pressable
           onPress={onReplayIntro}
           style={({ pressed }) => [styles.secondary, pressed && { opacity: 0.5 }]}
         >
-          <Text style={styles.secondaryText}>イントロをもう一度見る</Text>
+          <Text style={styles.secondaryText}>{t('explain.replay')}</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>
