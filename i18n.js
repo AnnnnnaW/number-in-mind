@@ -3,15 +3,31 @@
  * 日本語（ja*）以外はすべて英語。
  */
 
+import { getLocales } from "expo-localization";
+
 function detectLocale() {
   let tag = "";
+  // 端末の言語設定をネイティブ側から読む。
+  // iOS の Intl はアプリが対応を宣言した言語しか返さないので、
+  // 端末が日本語でも Expo Go では en になってしまう
   try {
-    tag = Intl.DateTimeFormat().resolvedOptions().locale || "";
+    const first = getLocales()[0];
+    tag = (first && (first.languageTag || first.languageCode)) || "";
   } catch (e) {
-    // Intl が使えない環境向け
+    // ネイティブモジュールが使えない環境向け
+  }
+  if (!tag) {
+    try {
+      tag = Intl.DateTimeFormat().resolvedOptions().locale || "";
+    } catch (e) {
+      // Intl が使えない環境向け
+    }
   }
   if (!tag && typeof navigator !== "undefined") {
-    tag = navigator.language || (navigator.languages && navigator.languages[0]) || "";
+    tag =
+      navigator.language ||
+      (navigator.languages && navigator.languages[0]) ||
+      "";
   }
   return String(tag).toLowerCase().startsWith("ja") ? "ja" : "en";
 }
