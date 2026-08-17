@@ -1,5 +1,3 @@
-import { Platform } from 'react-native';
-
 /**
  * 配色とフォントのプリセット。
  *
@@ -7,58 +5,63 @@ import { Platform } from 'react-native';
  * どれを選んでも、カードの見た目・文字色・強調色が一式で入れ替わる。
  */
 
+// babel-preset-expo がビルド時に "ios" / "android" / "web" へ置き換える。
+// ※ Platform.select({ web: ... }) は hermes-stable 変換で web キーが削られ、
+//    default: undefined だけが残ってフォント名が消えるため使わない。
+const OS = process.env.EXPO_OS;
+
 export const PALETTES = {
   gold: {
-    id: 'gold',
-    label: '紺 × 金',
-    backdrop: '#05070F',
-    cardTop: '#1B2C63',
-    cardBottom: '#101B44',
-    accent: '#C9A75A',
-    accentFaint: 'rgba(201,167,90,0.34)',
-    accentWash: 'rgba(201,167,90,0.12)',
-    ink: '#F5F2E8',
-    inkSoft: 'rgba(245,242,232,0.55)',
-    inkFaint: 'rgba(245,242,232,0.28)',
-    inkLine: 'rgba(245,242,232,0.12)',
-    yes: '#FFD98A',
-    no: 'rgba(245,242,232,0.3)',
+    id: "gold",
+    label: "ネイビー",
+    backdrop: "#05070F",
+    cardTop: "#1B2C63",
+    cardBottom: "#101B44",
+    accent: "#C9A75A",
+    accentFaint: "rgba(201,167,90,0.34)",
+    accentWash: "rgba(201,167,90,0.12)",
+    ink: "#F5F2E8",
+    inkSoft: "rgba(245,242,232,0.55)",
+    inkFaint: "rgba(245,242,232,0.28)",
+    inkLine: "rgba(245,242,232,0.12)",
+    yes: "#FFD98A",
+    no: "rgba(245,242,232,0.3)",
   },
   crimson: {
-    id: 'crimson',
-    label: '深紅 × 銀',
-    backdrop: '#0D0607',
-    cardTop: '#5A1620',
-    cardBottom: '#3A0E15',
-    accent: '#E4C9C9',
-    accentFaint: 'rgba(228,201,201,0.34)',
-    accentWash: 'rgba(228,201,201,0.12)',
-    ink: '#F7EEEE',
-    inkSoft: 'rgba(247,238,238,0.55)',
-    inkFaint: 'rgba(247,238,238,0.28)',
-    inkLine: 'rgba(247,238,238,0.12)',
-    yes: '#FF9F9F',
-    no: 'rgba(247,238,238,0.3)',
+    id: "crimson",
+    label: "レッド",
+    backdrop: "#0D0607",
+    cardTop: "#5A1620",
+    cardBottom: "#3A0E15",
+    accent: "#E4C9C9",
+    accentFaint: "rgba(228,201,201,0.34)",
+    accentWash: "rgba(228,201,201,0.12)",
+    ink: "#F7EEEE",
+    inkSoft: "rgba(247,238,238,0.55)",
+    inkFaint: "rgba(247,238,238,0.28)",
+    inkLine: "rgba(247,238,238,0.12)",
+    yes: "#FF9F9F",
+    no: "rgba(247,238,238,0.3)",
   },
   ivory: {
-    id: 'ivory',
-    label: '墨 × 白',
-    backdrop: '#F4F1EA',
-    cardTop: '#FFFFFF',
-    cardBottom: '#EDE8DC',
-    accent: '#8A6D1B',
-    accentFaint: 'rgba(138,109,27,0.34)',
-    accentWash: 'rgba(138,109,27,0.10)',
-    ink: '#17140D',
-    inkSoft: 'rgba(23,20,13,0.6)',
-    inkFaint: 'rgba(23,20,13,0.32)',
-    inkLine: 'rgba(23,20,13,0.14)',
-    yes: '#8A6D1B',
-    no: 'rgba(23,20,13,0.32)',
+    id: "ivory",
+    label: "アイボリー",
+    backdrop: "#F4F1EA",
+    cardTop: "#FFFFFF",
+    cardBottom: "#EDE8DC",
+    accent: "#8A6D1B",
+    accentFaint: "rgba(138,109,27,0.34)",
+    accentWash: "rgba(138,109,27,0.10)",
+    ink: "#17140D",
+    inkSoft: "rgba(23,20,13,0.6)",
+    inkFaint: "rgba(23,20,13,0.32)",
+    inkLine: "rgba(23,20,13,0.14)",
+    yes: "#8A6D1B",
+    no: "rgba(23,20,13,0.32)",
   },
 };
 
-export const DEFAULT_PALETTE_ID = 'gold';
+export const DEFAULT_PALETTE_ID = "gold";
 
 /*
  * numberLineHeight … 数字を表示するときの「fontSize に対する行の高さ」の倍率。
@@ -69,33 +72,37 @@ export const DEFAULT_PALETTE_ID = 'gold';
  */
 export const FONTS = {
   avenir: {
-    id: 'avenir',
-    label: 'Avenir Next',
-    family: Platform.select({ ios: 'Avenir Next', android: 'sans-serif-medium', default: undefined }),
+    id: "avenir",
+    label: "Avenir Next",
+    family:
+      OS === "ios"
+        ? "Avenir Next"
+        : OS === "android"
+          ? "sans-serif-medium"
+          : "Avenir Next",
     numberLineHeight: 1.2,
   },
   georgia: {
-    id: 'georgia',
-    label: 'Georgia',
-    family: Platform.select({ ios: 'Georgia', android: 'serif', default: undefined }),
+    id: "georgia",
+    label: "Georgia",
+    family: OS === "ios" ? "Georgia" : OS === "android" ? "serif" : "Georgia",
     numberLineHeight: 1.25,
   },
   engraved: {
-    id: 'engraved',
-    label: '刻印',
-    family: Platform.select({
-      // iOS の「Academy Engraved LET」は、家族名ではなくこの PostScript 名でないと
-      // 見つからないことがあるための指定（iosfonts.com 等で確認できる正式名）
-      ios: 'AcademyEngravedLetPlain',
-      android: 'serif',
-      default: undefined,
-    }),
+    id: "engraved",
+    label: "Academy Engraved LET",
+    family:
+      OS === "ios"
+        ? "AcademyEngravedLetPlain"
+        : OS === "android"
+          ? "serif"
+          : "Academy Engraved LET",
     // この書体は上寄りの独特な縦のメトリクスを持つため、他の書体よりかなり広めに取る
     numberLineHeight: 1.7,
   },
 };
 
-export const DEFAULT_FONT_ID = 'avenir';
+export const DEFAULT_FONT_ID = "avenir";
 
 /** #rrggbb を rgba(...) 文字列にする。既存コードの「同じ色の薄め」を全テーマで再現するため */
 export function withAlpha(hex, alpha) {
