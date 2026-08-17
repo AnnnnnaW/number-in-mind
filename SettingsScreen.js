@@ -1,15 +1,17 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Pressable,
   SafeAreaView,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   View,
 } from "react-native";
 
 import { FONTS, PALETTES } from "./theme";
 import { useThemeSettings } from "./ThemeContext";
+import * as prefs from "./prefs";
 import { t } from "./i18n";
 
 /**
@@ -20,12 +22,32 @@ import { t } from "./i18n";
  * ここに置いたスウォッチ自体が現在の配色のプレビューになる。
  *
  * 選択は prefs.js に保存され、次回起動時も復元される（ThemeContext 側の責務）。
+ * スリープ防止は本番・練習の画面が開くときに prefs から読むので、ここでは保存だけする。
  */
 
 export default function SettingsScreen({ onExit }) {
   const { theme, paletteId, fontId, setPaletteId, setFontId } =
     useThemeSettings();
   const styles = useMemo(() => makeStyles(theme), [theme]);
+
+  // 起動時に読み込んだ内容がキャッシュにあるので、初期表示から正しい状態で出せる
+  const [keepAwake, setKeepAwake] = useState(() => prefs.snapshot().keepAwake);
+
+  // キャッシュが空のまま開かれた場合の保険
+  useEffect(() => {
+    let alive = true;
+    prefs.load().then((p) => {
+      if (alive) setKeepAwake(p.keepAwake);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const toggleKeepAwake = (value) => {
+    setKeepAwake(value);
+    prefs.update({ keepAwake: value });
+  };
 
   return (
     <SafeAreaView style={styles.root}>
@@ -57,6 +79,21 @@ export default function SettingsScreen({ onExit }) {
               styles={styles}
             />
           ))}
+        </View>
+
+        <Text style={styles.label}>{t("settings.screen")}</Text>
+        <View style={styles.switchRow}>
+          <View style={styles.switchTexts}>
+            <Text style={styles.switchLabel}>{t("settings.keepAwake")}</Text>
+            <Text style={styles.switchNote}>{t("settings.keepAwakeNote")}</Text>
+          </View>
+          <Switch
+            value={keepAwake}
+            onValueChange={toggleKeepAwake}
+            trackColor={{ false: theme.inkLine, true: theme.accent }}
+            thumbColor={theme.cardBottom}
+            ios_backgroundColor={theme.inkLine}
+          />
         </View>
 
         <Text style={styles.note}>{t("settings.note")}</Text>
@@ -256,6 +293,24 @@ function makeStyles(theme) {
     },
     fontLabelActive: { color: theme.ink },
     fontCheck: { color: theme.accent, fontSize: 16 },
+
+    switchRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.inkLine,
+      borderRadius: 12,
+      paddingVertical: 14,
+      paddingHorizontal: 18,
+    },
+    switchTexts: { flex: 1, paddingRight: 14 },
+    switchLabel: { color: theme.ink, fontSize: 14, letterSpacing: 1 },
+    switchNote: {
+      color: theme.inkFaint,
+      fontSize: 11,
+      lineHeight: 16,
+      marginTop: 4,
+    },
 
     note: {
       color: theme.inkFaint,

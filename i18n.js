@@ -51,6 +51,9 @@ const ja = {
   "settings.title": "設定",
   "settings.palette": "カードの配色",
   "settings.font": "フォント",
+  "settings.screen": "画面",
+  "settings.keepAwake": "スリープ防止",
+  "settings.keepAwakeNote": "プレイ中、画面が暗くならないようにします。",
   "settings.note":
     "選択するとその場で変更が反映され、次回起動時も同じ設定で開きます。",
   "palette.gold": "ネイビー",
@@ -162,8 +165,10 @@ const en = {
   "settings.title": "Settings",
   "settings.palette": "Card colors",
   "settings.font": "Font",
-  "settings.note":
-    "Changes apply right away and are saved for next time.",
+  "settings.screen": "Screen",
+  "settings.keepAwake": "Keep screen awake",
+  "settings.keepAwakeNote": "Stops the screen from dimming while you play.",
+  "settings.note": "Changes apply right away and are saved for next time.",
   "palette.gold": "Navy",
   "palette.crimson": "Red",
   "palette.ivory": "Ivory",
@@ -218,7 +223,7 @@ const en = {
   "explain.p2d": "exactly one way",
   "explain.p2e": ".",
   "explain.p3":
-    'Each card only lists the numbers that need that card\'s value. So no two numbers share the same Yes/No pattern — the answer is unique.',
+    "Each card only lists the numbers that need that card's value. So no two numbers share the same Yes/No pattern — the answer is unique.",
   "explain.note":
     "{target} in binary is {binary}. Your Yes/No answers are exactly those 1s and 0s.",
   "explain.hColor": "Do the red and green numbers mean anything?",
