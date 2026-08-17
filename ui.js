@@ -183,7 +183,7 @@ export function CardFace({ card }) {
                   <Text
                     style={[
                       styles.number,
-                      { fontSize, lineHeight: Math.round(fontSize * 1.12) },
+                      { fontSize, lineHeight: Math.round(fontSize * theme.numberLineHeight) },
                       accents.has(row[c]) && { color: accentColor },
                     ]}
                     allowFontScaling={false}

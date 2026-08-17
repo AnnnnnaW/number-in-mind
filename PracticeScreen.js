@@ -481,6 +481,7 @@ function makeStyles(theme) {
     recordValue: {
       color: theme.ink,
       fontSize: 24,
+      lineHeight: Math.round(24 * theme.numberLineHeight),
       fontFamily: theme.numberFont,
       fontWeight: '600',
       fontVariant: ['tabular-nums'],
@@ -544,6 +545,7 @@ function makeStyles(theme) {
     slotValue: {
       color: theme.ink,
       fontSize: 28,
+      lineHeight: Math.round(28 * theme.numberLineHeight),
       fontFamily: theme.numberFont,
       fontWeight: '600',
       fontVariant: ['tabular-nums'],
@@ -563,6 +565,7 @@ function makeStyles(theme) {
     keyText: {
       color: theme.ink,
       fontSize: 24,
+      lineHeight: Math.round(24 * theme.numberLineHeight),
       fontFamily: theme.numberFont,
       fontWeight: '600',
     },
@@ -614,6 +617,7 @@ function makeStyles(theme) {
     resultTarget: {
       color: theme.ink,
       fontSize: 26,
+      lineHeight: Math.round(26 * theme.numberLineHeight),
       fontFamily: theme.numberFont,
       fontWeight: '600',
       fontVariant: ['tabular-nums'],

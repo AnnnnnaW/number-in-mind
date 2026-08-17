@@ -163,6 +163,7 @@ function makeStyles(theme) {
     miniNumber: {
       color: theme.inkFaint,
       fontSize: 17,
+      lineHeight: Math.round(17 * theme.numberLineHeight),
       fontFamily: theme.numberFont,
       fontWeight: '600',
       fontVariant: ['tabular-nums'],
@@ -177,6 +178,7 @@ function makeStyles(theme) {
     sumPart: {
       color: theme.accent,
       fontSize: 21,
+      lineHeight: Math.round(21 * theme.numberLineHeight),
       fontFamily: theme.numberFont,
       fontWeight: '600',
       fontVariant: ['tabular-nums'],
@@ -186,6 +188,7 @@ function makeStyles(theme) {
     answer: {
       color: theme.ink,
       fontSize: 34,
+      lineHeight: Math.round(34 * theme.numberLineHeight),
       fontFamily: theme.numberFont,
       fontWeight: '600',
       fontVariant: ['tabular-nums'],

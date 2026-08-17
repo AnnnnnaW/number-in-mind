@@ -60,16 +60,25 @@ export const PALETTES = {
 
 export const DEFAULT_PALETTE_ID = 'gold';
 
+/*
+ * numberLineHeight … 数字を表示するときの「fontSize に対する行の高さ」の倍率。
+ *
+ * 標準的な書体は fontSize の 1.2 倍もあれば十分だが、Academy Engraved LET のような
+ * 縦のメトリクス（実際の字面とフォントが申告する高さ）が食い違う書体だと、
+ * 行の高さが足りずに数字の上や下が見切れる。書体ごとにここで広さを調整する。
+ */
 export const FONTS = {
   avenir: {
     id: 'avenir',
     label: 'Avenir Next',
     family: Platform.select({ ios: 'Avenir Next', android: 'sans-serif-medium', default: undefined }),
+    numberLineHeight: 1.2,
   },
   georgia: {
     id: 'georgia',
     label: 'Georgia',
     family: Platform.select({ ios: 'Georgia', android: 'serif', default: undefined }),
+    numberLineHeight: 1.25,
   },
   engraved: {
     id: 'engraved',
@@ -81,6 +90,8 @@ export const FONTS = {
       android: 'serif',
       default: undefined,
     }),
+    // この書体は上寄りの独特な縦のメトリクスを持つため、他の書体よりかなり広めに取る
+    numberLineHeight: 1.7,
   },
 };
 
@@ -104,6 +115,7 @@ export function buildTheme(paletteId, fontId) {
   return {
     ...palette,
     numberFont: font.family,
+    numberLineHeight: font.numberLineHeight ?? 1.2,
     fontId: font.id,
     // 「同じ色の薄め」をよく使う分だけ、あらかじめ計算しておく
     accentWash10: withAlpha(palette.accent, 0.1),
