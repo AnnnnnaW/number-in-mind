@@ -103,9 +103,9 @@ check('未入力は不正解として扱う', gEmpty[0].correct === false && gEm
 
 /* ---- 記録（スコア）の集計 ---- */
 
-const run = (players, limitLabel, hit, total, seconds) => ({
+const run = (players, limitId, hit, total, seconds) => ({
   players,
-  limitLabel,
+  limitId,
   hit,
   total,
   seconds,
@@ -113,30 +113,30 @@ const run = (players, limitLabel, hit, total, seconds) => ({
 });
 
 let s = EMPTY;
-let out = recordResult(s, run(3, '3秒', 3, 3, 20.0));
+let out = recordResult(s, run(3, '3', 3, 3, 20.0));
 check('全問正解で連続数が1になる', out.state.streak === 1 && out.perfect === true);
-check('初回の全問正解はベスト記録になる', out.isBestTime === true && out.state.best[keyOf(3, '3秒')] === 20.0);
+check('初回の全問正解はベスト記録になる', out.isBestTime === true && out.state.best[keyOf(3, '3')] === 20.0);
 
 s = out.state;
-out = recordResult(s, run(3, '3秒', 3, 3, 25.0));
-check('遅いタイムではベストを更新しない', out.isBestTime === false && out.state.best[keyOf(3, '3秒')] === 20.0);
+out = recordResult(s, run(3, '3', 3, 3, 25.0));
+check('遅いタイムではベストを更新しない', out.isBestTime === false && out.state.best[keyOf(3, '3')] === 20.0);
 check('連続数は伸びる', out.state.streak === 2);
 
 s = out.state;
-out = recordResult(s, run(3, '3秒', 3, 3, 12.5));
-check('速いタイムでベストを更新する', out.isBestTime === true && out.state.best[keyOf(3, '3秒')] === 12.5);
+out = recordResult(s, run(3, '3', 3, 3, 12.5));
+check('速いタイムでベストを更新する', out.isBestTime === true && out.state.best[keyOf(3, '3')] === 12.5);
 
 s = out.state;
-out = recordResult(s, run(3, '3秒', 2, 3, 9.0));
+out = recordResult(s, run(3, '3', 2, 3, 9.0));
 check('1問でも間違えたら連続数がリセットされる', out.state.streak === 0);
-check('間違えたときは速くてもベストにしない', out.isBestTime === false && out.state.best[keyOf(3, '3秒')] === 12.5);
+check('間違えたときは速くてもベストにしない', out.isBestTime === false && out.state.best[keyOf(3, '3')] === 12.5);
 check('連続の最高記録は残る', out.state.bestStreak === 3);
 
 s = out.state;
-out = recordResult(s, run(5, '3秒', 5, 5, 40.0));
+out = recordResult(s, run(5, '3', 5, 5, 40.0));
 check(
   '人数が違えばベストは別枠',
-  out.state.best[keyOf(5, '3秒')] === 40.0 && out.state.best[keyOf(3, '3秒')] === 12.5
+  out.state.best[keyOf(5, '3')] === 40.0 && out.state.best[keyOf(3, '3')] === 12.5
 );
 check('履歴が新しい順に積まれる', out.state.history[0].players === 5 && out.state.history.length === 5);
 

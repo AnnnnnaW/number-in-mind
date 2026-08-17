@@ -15,6 +15,7 @@ import {
 import { CARDS, MAX_NUMBER } from './cards';
 import { CardFace, Ornament, Surface } from './ui';
 import { useTheme } from './ThemeContext';
+import { t } from './i18n';
 
 /**
  * 本番用の画面。
@@ -47,10 +48,10 @@ function EndFace({ onRestart, styles }) {
       <Ornament />
       <View style={styles.endBody}>
         <Text style={styles.endLead} allowFontScaling={false}>
-          あなたの思い浮かべた
+          {t('perform.end1')}
         </Text>
         <Text style={styles.endLead} allowFontScaling={false}>
-          数字は
+          {t('perform.end2')}
         </Text>
         <Text style={styles.endDots} allowFontScaling={false}>
           …
@@ -61,7 +62,7 @@ function EndFace({ onRestart, styles }) {
         hitSlop={16}
         style={({ pressed }) => [styles.restart, pressed && { opacity: 0.5 }]}
       >
-        <Text style={styles.restartText}>もう一度</Text>
+        <Text style={styles.restartText}>{t('perform.restart')}</Text>
       </Pressable>
       <Ornament flipped />
     </Surface>
@@ -168,13 +169,15 @@ export default function PerformanceScreen({ onExit }) {
           <Text style={styles.backText}>‹</Text>
         </Pressable>
         <View style={styles.introBody}>
-          <Text style={styles.introLead}>1 〜 {MAX_NUMBER} の中から</Text>
-          <Text style={styles.introLead}>好きな数字をひとつ</Text>
-          <Text style={styles.introLead}>思い浮かべてください</Text>
+          <Text style={styles.introLead}>{t('perform.lead1', { max: MAX_NUMBER })}</Text>
+          <Text style={styles.introLead}>{t('perform.lead2')}</Text>
+          <Text style={styles.introLead}>{t('perform.lead3')}</Text>
           <View style={styles.introRule} />
-          <Text style={styles.introSub}>これから {CARDS.length} 枚のカードをお見せします</Text>
-          <Text style={styles.introSub}>その数字があれば「ある」</Text>
-          <Text style={styles.introSub}>なければ「ない」とお答えください</Text>
+          <Text style={styles.introSub}>
+            {t('perform.sub1', { count: CARDS.length })}
+          </Text>
+          <Text style={styles.introSub}>{t('perform.sub2')}</Text>
+          <Text style={styles.introSub}>{t('perform.sub3')}</Text>
         </View>
         <Pressable
           onPress={() => setStarted(true)}
@@ -182,7 +185,7 @@ export default function PerformanceScreen({ onExit }) {
         >
           <Text style={styles.startText}>START</Text>
         </Pressable>
-        <Text style={styles.introHint}>カードは横に払うとめくれます</Text>
+        <Text style={styles.introHint}>{t('perform.hint')}</Text>
       </SafeAreaView>
     );
   }

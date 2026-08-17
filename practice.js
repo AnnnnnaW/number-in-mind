@@ -12,12 +12,12 @@ export const MIN_PLAYERS = 1;
 export const MAX_PLAYERS = 5;
 export const PLAYER_LABELS = ['A', 'B', 'C', 'D', 'E'];
 
-/** 制限時間の選択肢（秒）。null は無制限 */
+/** 制限時間の選択肢（秒）。null は無制限。表示文言は i18n の timeLimit.{id} */
 export const TIME_LIMITS = [
-  { label: '自分のペース', seconds: null },
-  { label: '5秒', seconds: 5 },
-  { label: '3秒', seconds: 3 },
-  { label: '2秒', seconds: 2 },
+  { id: "pace", seconds: null },
+  { id: "5", seconds: 5 },
+  { id: "3", seconds: 3 },
+  { id: "2", seconds: 2 },
 ];
 
 /**

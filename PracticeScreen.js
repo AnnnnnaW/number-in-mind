@@ -14,6 +14,7 @@ import {
   grade,
 } from './practice';
 import { EMPTY, clear, keyOf, load, recordResult, save } from './scores';
+import { formatScoreKey, t } from './i18n';
 
 /**
  * 練習モード。
@@ -46,7 +47,7 @@ export default function PracticeScreen({ onExit }) {
   const [run, setRun] = useState(null); // 直近1回の結果
 
   const startedAt = useRef(0);
-  const limitLabel = TIME_LIMITS[limitIndex].label;
+  const limitId = TIME_LIMITS[limitIndex].id;
   const limit = TIME_LIMITS[limitIndex].seconds;
 
   useEffect(() => {
@@ -124,7 +125,7 @@ export default function PracticeScreen({ onExit }) {
 
     const outcome = recordResult(scores, {
       players,
-      limitLabel,
+      limitId,
       hit,
       total: results.length,
       seconds,
@@ -135,7 +136,7 @@ export default function PracticeScreen({ onExit }) {
     save(outcome.state);
     setRun({ results, hit, seconds, perfect: outcome.perfect, isBestTime: outcome.isBestTime });
     setPhase(PHASE.RESULT);
-  }, [round, inputs, scores, players, limitLabel]);
+  }, [round, inputs, scores, players, limitId]);
 
   const resetScores = useCallback(() => {
     clear().then(setScores);
@@ -143,33 +144,35 @@ export default function PracticeScreen({ onExit }) {
 
   /* ---------------- 設定 ---------------- */
   if (phase === PHASE.SETUP) {
-    const best = scores.best[keyOf(players, limitLabel)];
+    const best = scores.best[keyOf(players, limitId)];
     return (
       <SafeAreaView style={styles.root}>
         <BackLink onPress={onExit} styles={styles} />
         <ScrollView contentContainerStyle={styles.setupBody}>
-          <Text style={styles.h1}>練習</Text>
-          <Text style={styles.note}>
-            アプリが観客役をやります。カードごとに全員の「ある / ない」が出るので、
-            頭の中で人数ぶんの合計を同時に追ってください。
-          </Text>
+          <Text style={styles.h1}>{t('practice.title')}</Text>
+          <Text style={styles.note}>{t('practice.note')}</Text>
 
-          <Text style={styles.label}>人数</Text>
+          <Text style={styles.label}>{t('practice.players')}</Text>
           <View style={styles.chipRow}>
             {Array.from({ length: MAX_PLAYERS - MIN_PLAYERS + 1 }, (_, i) => i + MIN_PLAYERS).map(
               (n) => (
                 <Chip key={n} active={players === n} onPress={() => setPlayers(n)} styles={styles}>
-                  {`${n}人`}
+                  {t('practice.playersCount', { n })}
                 </Chip>
               )
             )}
           </View>
 
-          <Text style={styles.label}>1枚あたりの時間</Text>
+          <Text style={styles.label}>{t('practice.timePerCard')}</Text>
           <View style={styles.chipRow}>
-            {TIME_LIMITS.map((t, i) => (
-              <Chip key={t.label} active={limitIndex === i} onPress={() => setLimitIndex(i)} styles={styles}>
-                {t.label}
+            {TIME_LIMITS.map((tl, i) => (
+              <Chip
+                key={tl.id}
+                active={limitIndex === i}
+                onPress={() => setLimitIndex(i)}
+                styles={styles}
+              >
+                {t(`timeLimit.${tl.id}`)}
               </Chip>
             ))}
           </View>
@@ -177,17 +180,17 @@ export default function PracticeScreen({ onExit }) {
           <View style={styles.record}>
             <View style={styles.recordCell}>
               <Text style={styles.recordValue}>{scores.streak}</Text>
-              <Text style={styles.recordCaption}>全問正解 連続</Text>
+              <Text style={styles.recordCaption}>{t('practice.streak')}</Text>
             </View>
             <View style={styles.recordDivider} />
             <View style={styles.recordCell}>
               <Text style={styles.recordValue}>{scores.bestStreak}</Text>
-              <Text style={styles.recordCaption}>連続の最高</Text>
+              <Text style={styles.recordCaption}>{t('practice.bestStreak')}</Text>
             </View>
             <View style={styles.recordDivider} />
             <View style={styles.recordCell}>
               <Text style={styles.recordValue}>{best == null ? '–' : best.toFixed(1)}</Text>
-              <Text style={styles.recordCaption}>この設定のベスト秒</Text>
+              <Text style={styles.recordCaption}>{t('practice.bestSeconds')}</Text>
             </View>
           </View>
 
@@ -195,22 +198,28 @@ export default function PracticeScreen({ onExit }) {
             onPress={start}
             style={({ pressed }) => [styles.primary, pressed && { opacity: 0.55 }]}
           >
-            <Text style={styles.primaryText}>はじめる</Text>
+            <Text style={styles.primaryText}>{t('common.start')}</Text>
           </Pressable>
 
           {scores.history.length > 0 ? (
             <>
-              <Text style={styles.label}>直近の記録</Text>
+              <Text style={styles.label}>{t('practice.history')}</Text>
               {scores.history.slice(0, 5).map((h, i) => (
                 <View style={styles.historyRow} key={`${h.at}-${i}`}>
-                  <Text style={styles.historyLeft}>{keyOf(h.players, h.limitLabel)}</Text>
+                  <Text style={styles.historyLeft}>
+                    {formatScoreKey(h.players, h.limitId)}
+                  </Text>
                   <Text
                     style={[
                       styles.historyRight,
                       h.hit === h.total && { color: theme.accent },
                     ]}
                   >
-                    {h.hit}/{h.total} ・ {h.seconds.toFixed(1)}秒
+                    {t('practice.historyLine', {
+                      hit: h.hit,
+                      total: h.total,
+                      seconds: h.seconds.toFixed(1),
+                    })}
                   </Text>
                 </View>
               ))}
@@ -218,7 +227,7 @@ export default function PracticeScreen({ onExit }) {
                 onPress={resetScores}
                 style={({ pressed }) => [styles.secondary, pressed && { opacity: 0.5 }]}
               >
-                <Text style={styles.clearText}>記録を消す</Text>
+                <Text style={styles.clearText}>{t('practice.clearHistory')}</Text>
               </Pressable>
             </>
           ) : null}
@@ -242,7 +251,7 @@ export default function PracticeScreen({ onExit }) {
               <View style={styles.answerCell} key={PLAYER_LABELS[i]}>
                 <Text style={styles.answerName}>{PLAYER_LABELS[i]}</Text>
                 <Text style={[styles.answerValue, yes ? styles.answerYes : styles.answerNo]}>
-                  {yes ? 'ある' : 'ない'}
+                  {yes ? t('common.yes') : t('common.no')}
                 </Text>
               </View>
             ))}
@@ -266,7 +275,7 @@ export default function PracticeScreen({ onExit }) {
     const filled = inputs.every((v) => v !== '');
     return (
       <SafeAreaView style={styles.root}>
-        <Text style={styles.h2}>それぞれの数字は？</Text>
+        <Text style={styles.h2}>{t('practice.askNumbers')}</Text>
 
         <View style={styles.slotRow}>
           {inputs.map((v, i) => (
@@ -295,7 +304,7 @@ export default function PracticeScreen({ onExit }) {
                   ]}
                 >
                   <Text style={[styles.keyText, k === 'next' && styles.keyNextText]}>
-                    {k === 'del' ? '⌫' : k === 'next' ? '次の人' : k}
+                    {k === 'del' ? '⌫' : k === 'next' ? t('practice.nextPerson') : k}
                   </Text>
                 </Pressable>
               ))}
@@ -311,11 +320,11 @@ export default function PracticeScreen({ onExit }) {
               pressed && filled && { opacity: 0.6 },
             ]}
           >
-            <Text style={styles.submitText}>採点</Text>
+            <Text style={styles.submitText}>{t('practice.grade')}</Text>
           </Pressable>
         </View>
 
-        <Text style={styles.inputHint}>2桁入れると自動で次の人へ移ります</Text>
+        <Text style={styles.inputHint}>{t('practice.inputHint')}</Text>
       </SafeAreaView>
     );
   }
@@ -325,16 +334,19 @@ export default function PracticeScreen({ onExit }) {
     <SafeAreaView style={styles.root}>
       <ScrollView contentContainerStyle={styles.resultBody}>
         <Text style={styles.h1}>
-          {run.hit} / {run.results.length} 正解
+          {t('practice.scoreTitle', { hit: run.hit, total: run.results.length })}
         </Text>
         <Text style={styles.note}>
-          {run.seconds.toFixed(1)} 秒 ・ {keyOf(players, limitLabel)}
+          {t('practice.scoreMeta', {
+            seconds: run.seconds.toFixed(1),
+            key: formatScoreKey(players, limitId),
+          })}
         </Text>
 
         <View style={styles.badgeRow}>
-          {run.isBestTime ? <Badge styles={styles}>自己ベスト</Badge> : null}
+          {run.isBestTime ? <Badge styles={styles}>{t('practice.personalBest')}</Badge> : null}
           {run.perfect && scores.streak > 1 ? (
-            <Badge styles={styles}>{scores.streak} 連続 全問正解</Badge>
+            <Badge styles={styles}>{t('practice.streakBadge', { n: scores.streak })}</Badge>
           ) : null}
         </View>
 
@@ -348,7 +360,11 @@ export default function PracticeScreen({ onExit }) {
               <Text style={styles.resultTarget}>{r.target}</Text>
               <Text style={styles.resultBreakdown}>{breakdown(r.target).join(' + ')}</Text>
             </View>
-            {!r.correct ? <Text style={styles.resultYours}>あなた {r.value ?? '–'}</Text> : null}
+            {!r.correct ? (
+              <Text style={styles.resultYours}>
+                {t('practice.yours', { value: r.value ?? '–' })}
+              </Text>
+            ) : null}
           </View>
         ))}
 
@@ -356,13 +372,13 @@ export default function PracticeScreen({ onExit }) {
           onPress={start}
           style={({ pressed }) => [styles.primary, pressed && { opacity: 0.55 }]}
         >
-          <Text style={styles.primaryText}>もう一度</Text>
+          <Text style={styles.primaryText}>{t('common.again')}</Text>
         </Pressable>
         <Pressable
           onPress={() => setPhase(PHASE.SETUP)}
           style={({ pressed }) => [styles.secondary, pressed && { opacity: 0.5 }]}
         >
-          <Text style={styles.secondaryText}>設定を変える</Text>
+          <Text style={styles.secondaryText}>{t('practice.changeSetup')}</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>
