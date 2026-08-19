@@ -55,7 +55,7 @@ const ja = {
   "settings.keepAwake": "スリープ防止",
   "settings.keepAwakeNote": "プレイ中、画面が暗くならないようにします。",
   "settings.note":
-    "選択するとその場で変更が反映され、次回起動時も同じ設定で開きます。",
+    "変更はその場で反映され、次回起動時も同じ設定で開きます。",
   "settings.helpShare": "ヘルプ・共有",
   "settings.replayIntro": "イントロをもう一度見る",
   "settings.shareApp": "アプリをシェア",
@@ -171,7 +171,7 @@ const en = {
   "settings.screen": "Screen",
   "settings.keepAwake": "Keep screen awake",
   "settings.keepAwakeNote": "Stops the screen from dimming while you play.",
-  "settings.note": "Changes apply right away and are saved for next time.",
+  "settings.note": "Changes apply right away and are kept for next time.",
   "settings.helpShare": "Help & Share",
   "settings.replayIntro": "Watch the intro again",
   "settings.shareApp": "Share this app",
