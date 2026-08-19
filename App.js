@@ -272,10 +272,10 @@ function makeStyles(theme) {
     },
     secondaryText: {
       color: theme.inkSoft,
-      fontSize: 14,
+      fontSize: 16,
       letterSpacing: 3,
     },
     footerLink: { marginTop: 8, padding: 10 },
-    footerLinkText: { color: theme.inkFaint, fontSize: 12, letterSpacing: 2 },
+    footerLinkText: { color: theme.inkFaint, fontSize: 14, letterSpacing: 2 },
   });
 }

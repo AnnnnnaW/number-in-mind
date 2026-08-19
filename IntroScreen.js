@@ -307,7 +307,7 @@ function makeStyles(theme) {
     stage: { flex: 1, marginTop: 14 },
 
     introBody: { alignItems: 'center', paddingHorizontal: 24 },
-    introSmall: { color: theme.accent, fontSize: 13, letterSpacing: 5 },
+    introSmall: { color: theme.accent, fontSize: 14, letterSpacing: 5 },
     introLead: { color: theme.ink, fontSize: 22, lineHeight: 38, letterSpacing: 1.5 },
     introRule: {
       width: 56,
@@ -315,7 +315,7 @@ function makeStyles(theme) {
       backgroundColor: theme.accentFaint,
       marginVertical: 24,
     },
-    introSub: { color: theme.inkSoft, fontSize: 14, lineHeight: 26, letterSpacing: 1 },
+    introSub: { color: theme.inkSoft, fontSize: 16, lineHeight: 26, letterSpacing: 1 },
 
     startButton: {
       alignSelf: 'center',
@@ -329,7 +329,7 @@ function makeStyles(theme) {
     startText: { color: theme.accent, fontSize: 16, letterSpacing: 5, marginLeft: 5 },
 
     skip: { position: 'absolute', bottom: 26, left: 0, right: 0, alignItems: 'center', padding: 10 },
-    skipText: { color: theme.inkFaint, fontSize: 12, letterSpacing: 1 },
+    skipText: { color: theme.inkFaint, fontSize: 14, letterSpacing: 1 },
 
     dots: { flexDirection: 'row', justifyContent: 'center', marginTop: 14 },
     dot: {
@@ -370,7 +370,7 @@ function makeStyles(theme) {
       position: 'absolute',
       bottom: 30,
       color: theme.inkFaint,
-      fontSize: 12,
+      fontSize: 14,
       letterSpacing: 2,
     },
 

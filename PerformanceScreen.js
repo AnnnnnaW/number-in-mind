@@ -296,9 +296,9 @@ function makeStyles(theme) {
       paddingVertical: 4,
     },
     backText: {
-      color: theme.inkFaint,
-      fontSize: 30,
-      lineHeight: 34,
+      color: theme.ink,
+      fontSize: 40,
+      lineHeight: 44,
     },
 
     endBody: {
@@ -350,7 +350,7 @@ function makeStyles(theme) {
     },
     introSub: {
       color: theme.inkSoft,
-      fontSize: 14,
+      fontSize: 16,
       lineHeight: 26,
       letterSpacing: 1,
     },
@@ -376,7 +376,7 @@ function makeStyles(theme) {
       right: 0,
       textAlign: 'center',
       color: theme.inkFaint,
-      fontSize: 12,
+      fontSize: 14,
       letterSpacing: 1,
     },
   });
