@@ -182,19 +182,23 @@ export default function PracticeScreen({ onExit }) {
   const handlers = useRef({ nextCard, prevCard });
   handlers.current = { nextCard, prevCard };
 
-  // フリックで前後のカードへ。前に戻るのはいつでも、次へ進むのはタップと同じく自分のペース設定のときだけ
-  // （制限時間ありのときは、自動送りのペースを崩さないため先送りはさせない）
+  // フリックで前後のカードへ。前に戻る／次へ進む、どちらも自分のペース設定のときだけ
+  // （制限時間ありのときは、戻ってタイマーをリセットしてしまうと制限時間の意味がなくなるため、
+  //   フリックそのものを無効にする。自動送りだけに従う）
   const responder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => false,
       onMoveShouldSetPanResponder: (_e, g) =>
-        !busy.current && Math.abs(g.dx) > 6 && Math.abs(g.dx) > Math.abs(g.dy),
+        !busy.current &&
+        limitRef.current == null &&
+        Math.abs(g.dx) > 6 &&
+        Math.abs(g.dx) > Math.abs(g.dy),
       onPanResponderRelease: (_e, g) => {
         const threshold = widthRef.current * SWIPE_RATIO;
         const forward = g.dx < -threshold || g.vx < -SWIPE_VELOCITY;
         const backward = g.dx > threshold || g.vx > SWIPE_VELOCITY;
 
-        if (forward && limitRef.current == null) handlers.current.nextCard();
+        if (forward) handlers.current.nextCard();
         else if (backward && cardIndexRef.current > 0) handlers.current.prevCard();
       },
     })
