@@ -64,6 +64,7 @@ export default function SettingsScreen({ onExit, onReplayIntro }) {
       <BackLink onPress={onExit} styles={styles} />
       <ScrollView contentContainerStyle={styles.body}>
         <Text style={styles.h1}>{t("settings.title")}</Text>
+        <Text style={styles.note}>{t("settings.note")}</Text>
 
         <Text style={styles.label}>{t("settings.palette")}</Text>
         <View style={styles.paletteRow}>
@@ -121,8 +122,6 @@ export default function SettingsScreen({ onExit, onReplayIntro }) {
             <Text style={styles.helpText}>{t("settings.shareApp")}</Text>
           </Pressable>
         </View>
-
-        <Text style={styles.note}>{t("settings.note")}</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -354,7 +353,7 @@ function makeStyles(theme) {
       fontSize: 14,
       lineHeight: 22,
       textAlign: "center",
-      marginTop: 34,
+      marginBottom: 6,
       paddingHorizontal: 10,
     },
   });
