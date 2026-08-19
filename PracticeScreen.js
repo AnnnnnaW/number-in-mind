@@ -1,5 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Animated,
+  Easing,
+  PanResponder,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 
@@ -28,6 +39,13 @@ const PHASE = { SETUP: 'setup', CARDS: 'cards', INPUT: 'input', RESULT: 'result'
 
 const KEEP_AWAKE_TAG = 'number-in-mind:practice';
 
+// カード送りの演出用（イントロ画面と同じ、抜けて→差し替え→入ってくる、の2段アニメーション）
+const OUT_MS = 220;
+const IN_MS = 240;
+// フリックでカードを戻す判定のしきい値。本番画面のスワイプと揃えている
+const SWIPE_RATIO = 0.2;
+const SWIPE_VELOCITY = 0.35;
+
 const KEYPAD = [
   ['1', '2', '3'],
   ['4', '5', '6'],
@@ -36,6 +54,7 @@ const KEYPAD = [
 ];
 
 export default function PracticeScreen({ onExit }) {
+  const { width } = useWindowDimensions();
   const theme = useTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
@@ -54,6 +73,16 @@ export default function PracticeScreen({ onExit }) {
   const startedAt = useRef(0);
   const limitId = TIME_LIMITS[limitIndex].id;
   const limit = TIME_LIMITS[limitIndex].seconds;
+
+  // カード送り/戻しのアニメーション用（イントロ画面と同じ仕組み）
+  const shift = useRef(new Animated.Value(0)).current;
+  const busy = useRef(false);
+  const cardIndexRef = useRef(0);
+  cardIndexRef.current = cardIndex;
+  const limitRef = useRef(limit);
+  limitRef.current = limit;
+  const widthRef = useRef(width);
+  widthRef.current = width;
 
   useEffect(() => {
     let alive = true;
@@ -95,18 +124,81 @@ export default function PracticeScreen({ onExit }) {
     setCardIndex(0);
     setRun(null);
     startedAt.current = Date.now();
+    busy.current = false;
+    shift.setValue(0);
     setPhase(PHASE.CARDS);
-  }, [players]);
+  }, [players, shift]);
 
-  const nextCard = useCallback(() => {
-    setCardIndex((i) => {
-      if (i + 1 >= CARDS.length) {
-        setPhase(PHASE.INPUT);
-        return i;
+  // カードを1枚送る/戻す。抜けて（off screen）から中身を差し替え、反対側から入ってくる
+  const goto = useCallback(
+    (delta) => {
+      if (busy.current) return;
+      const from = cardIndexRef.current;
+
+      if (delta > 0 && from + 1 >= CARDS.length) {
+        // 最後のカードから先は、次の画面（入力）へ。差し替える相手カードがないので抜けるだけ
+        busy.current = true;
+        Animated.timing(shift, {
+          toValue: -1,
+          duration: OUT_MS,
+          easing: Easing.in(Easing.cubic),
+          useNativeDriver: true,
+        }).start(() => {
+          setPhase(PHASE.INPUT);
+          shift.setValue(0);
+          busy.current = false;
+        });
+        return;
       }
-      return i + 1;
-    });
-  }, []);
+
+      const to = from + delta;
+      if (to < 0 || to >= CARDS.length) return; // 最初のカードより前には戻れない
+
+      busy.current = true;
+      Animated.timing(shift, {
+        toValue: delta > 0 ? -1 : 1,
+        duration: OUT_MS,
+        easing: Easing.in(Easing.cubic),
+        useNativeDriver: true,
+      }).start(() => {
+        setCardIndex(to);
+        shift.setValue(delta > 0 ? 1 : -1);
+        Animated.timing(shift, {
+          toValue: 0,
+          duration: IN_MS,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }).start(() => {
+          busy.current = false;
+        });
+      });
+    },
+    [shift]
+  );
+
+  const nextCard = useCallback(() => goto(1), [goto]);
+  const prevCard = useCallback(() => goto(-1), [goto]);
+
+  const handlers = useRef({ nextCard, prevCard });
+  handlers.current = { nextCard, prevCard };
+
+  // フリックで前後のカードへ。前に戻るのはいつでも、次へ進むのはタップと同じく自分のペース設定のときだけ
+  // （制限時間ありのときは、自動送りのペースを崩さないため先送りはさせない）
+  const responder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => false,
+      onMoveShouldSetPanResponder: (_e, g) =>
+        !busy.current && Math.abs(g.dx) > 6 && Math.abs(g.dx) > Math.abs(g.dy),
+      onPanResponderRelease: (_e, g) => {
+        const threshold = widthRef.current * SWIPE_RATIO;
+        const forward = g.dx < -threshold || g.vx < -SWIPE_VELOCITY;
+        const backward = g.dx > threshold || g.vx > SWIPE_VELOCITY;
+
+        if (forward && limitRef.current == null) handlers.current.nextCard();
+        else if (backward && cardIndexRef.current > 0) handlers.current.prevCard();
+      },
+    })
+  ).current;
 
   // 制限時間つきのときは自動でめくる
   useEffect(() => {
@@ -267,11 +359,23 @@ export default function PracticeScreen({ onExit }) {
   /* ---------------- カード提示 ---------------- */
   if (phase === PHASE.CARDS) {
     const answers = round.answers[cardIndex];
+    const translateX = shift.interpolate({
+      inputRange: [-1, 0, 1],
+      outputRange: [-width * 1.05, 0, width * 1.05],
+    });
+    const cardOpacity = shift.interpolate({
+      inputRange: [-1, 0, 1],
+      outputRange: [0, 1, 0],
+    });
     return (
-      <SafeAreaView style={styles.root}>
+      <SafeAreaView style={styles.root} {...responder.panHandlers}>
         <Pressable style={styles.fill} onPress={limit == null ? nextCard : undefined}>
           <View style={styles.stage}>
-            <CardFace card={CARDS[cardIndex]} />
+            <Animated.View
+              style={[StyleSheet.absoluteFill, { opacity: cardOpacity, transform: [{ translateX }] }]}
+            >
+              <CardFace card={CARDS[cardIndex]} />
+            </Animated.View>
           </View>
 
           <View style={styles.answerBar}>
@@ -463,7 +567,7 @@ function makeStyles(theme) {
       paddingVertical: 6,
       zIndex: 2,
     },
-    backText: { color: theme.inkFaint, fontSize: 30, lineHeight: 34 },
+    backText: { color: theme.ink, fontSize: 40, lineHeight: 44 },
 
     h1: { color: theme.ink, fontSize: 26, letterSpacing: 3, textAlign: 'center', marginBottom: 10 },
     h2: {
@@ -476,7 +580,7 @@ function makeStyles(theme) {
     },
     note: {
       color: theme.inkSoft,
-      fontSize: 13,
+      fontSize: 14,
       lineHeight: 22,
       textAlign: 'center',
       marginBottom: 20,
@@ -484,7 +588,7 @@ function makeStyles(theme) {
     },
     label: {
       color: theme.accent,
-      fontSize: 12,
+      fontSize: 14,
       letterSpacing: 3,
       marginBottom: 10,
       marginTop: 18,
@@ -502,7 +606,7 @@ function makeStyles(theme) {
       margin: 4,
     },
     chipActive: { borderColor: theme.accent, backgroundColor: theme.accentWash14 },
-    chipText: { color: theme.inkSoft, fontSize: 14, letterSpacing: 1 },
+    chipText: { color: theme.inkSoft, fontSize: 16, letterSpacing: 1 },
     chipTextActive: { color: theme.ink },
 
     /* 記録 */
@@ -530,7 +634,7 @@ function makeStyles(theme) {
       fontWeight: '600',
       fontVariant: ['tabular-nums'],
     },
-    recordCaption: { color: theme.inkFaint, fontSize: 10, letterSpacing: 1, marginTop: 4 },
+    recordCaption: { color: theme.inkFaint, fontSize: 14, letterSpacing: 1, marginTop: 4 },
 
     historyRow: {
       flexDirection: 'row',
@@ -538,9 +642,9 @@ function makeStyles(theme) {
       paddingVertical: 7,
       paddingHorizontal: 10,
     },
-    historyLeft: { color: theme.inkSoft, fontSize: 12, letterSpacing: 1 },
-    historyRight: { color: theme.inkSoft, fontSize: 12, letterSpacing: 1 },
-    clearText: { color: theme.inkFaint, fontSize: 12, letterSpacing: 2 },
+    historyLeft: { color: theme.inkSoft, fontSize: 14, letterSpacing: 1 },
+    historyRight: { color: theme.inkSoft, fontSize: 14, letterSpacing: 1 },
+    clearText: { color: theme.inkFaint, fontSize: 14, letterSpacing: 2 },
 
     primary: {
       alignSelf: 'center',
@@ -553,12 +657,12 @@ function makeStyles(theme) {
     },
     primaryText: { color: theme.accent, fontSize: 16, letterSpacing: 4, marginLeft: 4 },
     secondary: { alignSelf: 'center', marginTop: 16, padding: 12 },
-    secondaryText: { color: theme.inkSoft, fontSize: 14, letterSpacing: 2 },
+    secondaryText: { color: theme.inkSoft, fontSize: 16, letterSpacing: 2 },
 
     /* 回答バー */
     answerBar: { flexDirection: 'row', justifyContent: 'center', marginTop: 12 },
     answerCell: { alignItems: 'center', minWidth: 62, paddingHorizontal: 4 },
-    answerName: { color: theme.accent, fontSize: 11, letterSpacing: 2, marginBottom: 3 },
+    answerName: { color: theme.accent, fontSize: 14, letterSpacing: 2, marginBottom: 3 },
     answerValue: { fontSize: 20, letterSpacing: 1, fontWeight: '600' },
     answerYes: { color: theme.yes },
     answerNo: { color: theme.no },
@@ -585,7 +689,7 @@ function makeStyles(theme) {
       minWidth: 60,
     },
     slotActive: { borderColor: theme.accent, backgroundColor: theme.accentWash12 },
-    slotName: { color: theme.accent, fontSize: 11, letterSpacing: 2 },
+    slotName: { color: theme.accent, fontSize: 14, letterSpacing: 2 },
     slotValue: {
       color: theme.ink,
       fontSize: 28,
@@ -614,7 +718,7 @@ function makeStyles(theme) {
       fontWeight: '600',
     },
     keyNext: { backgroundColor: theme.inkWash05 },
-    keyNextText: { color: theme.inkSoft, fontSize: 14, letterSpacing: 1, fontWeight: '400' },
+    keyNextText: { color: theme.inkSoft, fontSize: 16, letterSpacing: 1, fontWeight: '400' },
 
     submit: {
       marginHorizontal: 5,
@@ -629,7 +733,7 @@ function makeStyles(theme) {
     submitText: { color: theme.accent, fontSize: 17, letterSpacing: 4, marginLeft: 4 },
     inputHint: {
       color: theme.inkFaint,
-      fontSize: 11,
+      fontSize: 14,
       textAlign: 'center',
       marginTop: 10,
       letterSpacing: 0.5,
@@ -646,7 +750,7 @@ function makeStyles(theme) {
       paddingHorizontal: 14,
       margin: 4,
     },
-    badgeText: { color: theme.accent, fontSize: 11, letterSpacing: 2 },
+    badgeText: { color: theme.accent, fontSize: 14, letterSpacing: 2 },
     resultRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -656,7 +760,7 @@ function makeStyles(theme) {
       paddingHorizontal: 8,
     },
     resultMark: { fontSize: 20, width: 28 },
-    resultName: { color: theme.accent, fontSize: 13, letterSpacing: 2, width: 26 },
+    resultName: { color: theme.accent, fontSize: 14, letterSpacing: 2, width: 28 },
     resultNumbers: { flex: 1 },
     resultTarget: {
       color: theme.ink,
@@ -666,7 +770,7 @@ function makeStyles(theme) {
       fontWeight: '600',
       fontVariant: ['tabular-nums'],
     },
-    resultBreakdown: { color: theme.inkSoft, fontSize: 12, letterSpacing: 1, marginTop: 2 },
-    resultYours: { color: '#FF6A5E', fontSize: 12, letterSpacing: 1 },
+    resultBreakdown: { color: theme.inkSoft, fontSize: 14, letterSpacing: 1, marginTop: 2 },
+    resultYours: { color: '#FF6A5E', fontSize: 14, letterSpacing: 1 },
   });
 }

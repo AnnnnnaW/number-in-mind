@@ -114,7 +114,7 @@ function makeStyles(theme) {
     root: { flex: 1, backgroundColor: theme.backdrop, paddingHorizontal: 36 },
     body: { paddingTop: 34, paddingBottom: 50 },
 
-    eyebrow: { color: theme.accent, fontSize: 12, letterSpacing: 4, textAlign: 'center' },
+    eyebrow: { color: theme.accent, fontSize: 14, letterSpacing: 4, textAlign: 'center' },
     title: {
       color: theme.ink,
       fontSize: 26,
@@ -143,7 +143,7 @@ function makeStyles(theme) {
       marginBottom: 26,
       alignItems: 'center',
     },
-    exampleLead: { color: theme.inkSoft, fontSize: 12, letterSpacing: 1, marginBottom: 16 },
+    exampleLead: { color: theme.inkSoft, fontSize: 14, letterSpacing: 1, marginBottom: 16 },
 
     cardRow: { flexDirection: 'row', justifyContent: 'center' },
     miniCard: {
@@ -166,7 +166,7 @@ function makeStyles(theme) {
       fontVariant: ['tabular-nums'],
     },
     miniNumberYes: { color: theme.accent },
-    miniLabel: { color: theme.inkFaint, fontSize: 10, letterSpacing: 1, marginTop: 4 },
+    miniLabel: { color: theme.inkFaint, fontSize: 14, letterSpacing: 1, marginTop: 4 },
     miniLabelYes: { color: theme.inkSoft },
 
     arrow: { color: theme.inkFaint, fontSize: 15, marginTop: 12, marginBottom: 6 },
@@ -191,12 +191,12 @@ function makeStyles(theme) {
       fontVariant: ['tabular-nums'],
     },
 
-    h: { color: theme.accent, fontSize: 14, letterSpacing: 2, marginTop: 30, marginBottom: 10 },
-    p: { color: theme.inkSoft, fontSize: 14, lineHeight: 28, letterSpacing: 0.6 },
+    h: { color: theme.accent, fontSize: 16, letterSpacing: 2, marginTop: 30, marginBottom: 10 },
+    p: { color: theme.inkSoft, fontSize: 16, lineHeight: 28, letterSpacing: 0.6 },
     em: { color: theme.ink },
     note: {
       color: theme.inkFaint,
-      fontSize: 12,
+      fontSize: 14,
       lineHeight: 22,
       letterSpacing: 0.5,
       marginTop: 12,
@@ -209,7 +209,7 @@ function makeStyles(theme) {
       borderTopColor: theme.inkLine,
       alignItems: 'center',
     },
-    closingText: { color: theme.ink, fontSize: 14, lineHeight: 26, letterSpacing: 1 },
+    closingText: { color: theme.ink, fontSize: 16, lineHeight: 26, letterSpacing: 1 },
 
     primary: {
       alignSelf: 'center',
@@ -222,6 +222,6 @@ function makeStyles(theme) {
     },
     primaryText: { color: theme.accent, fontSize: 15, letterSpacing: 4, marginLeft: 4 },
     secondary: { alignSelf: 'center', marginTop: 14, padding: 12 },
-    secondaryText: { color: theme.inkFaint, fontSize: 12, letterSpacing: 1 },
+    secondaryText: { color: theme.inkFaint, fontSize: 14, letterSpacing: 1 },
   });
 }

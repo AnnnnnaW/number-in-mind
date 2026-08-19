@@ -78,10 +78,10 @@ const ja = {
   "intro.revealTail": "ですね？",
   "intro.tap": "画面をタップ",
   "intro.teaseLead": "なぜ、あなたの数字が分かったのか？",
-  "intro.tease1": "その秘密は、このアプリの中に隠されています。",
-  "intro.tease2": "秘密を解き明かしたら、",
-  "intro.tease3": "今度はあなたが誰かの数字を当ててみましょう。",
-  "intro.seek": "探す",
+  "intro.tease1": "その秘密は、光っているマークの中に隠れています。",
+  "intro.tease2": "タップして確かめてみましょう。",
+  "intro.tease3": "分かったら、今度はあなたが誰かの数字を当てる番です。",
+  "intro.seek": "はじめる",
 
   // 本番
   "perform.lead1": "1 〜 {max} の中から",
@@ -124,7 +124,7 @@ const ja = {
   // 練習
   "practice.title": "練習",
   "practice.note":
-    "アプリが観客役をやります。カードごとに全員の「ある / ない」が出るので、頭の中で人数ぶんの合計を同時に追ってください。",
+    "本番さながらに、複数人を同時に相手にする練習です。\nカードが出るたびに、それぞれの「ある / ない」を見て、頭の中で合計を計算していってください。",
   "practice.players": "人数",
   "practice.playersCount": "{n}人",
   "practice.timePerCard": "1枚あたりの時間",
@@ -190,10 +190,10 @@ const en = {
   "intro.revealTail": "isn't it?",
   "intro.tap": "Tap to continue",
   "intro.teaseLead": "How did I know your number?",
-  "intro.tease1": "The secret is hidden somewhere in this app.",
-  "intro.tease2": "Once you uncover it,",
-  "intro.tease3": "it'll be your turn to read someone's mind.",
-  "intro.seek": "Find it",
+  "intro.tease1": "The secret is hidden inside the glowing mark.",
+  "intro.tease2": "Tap it to find out.",
+  "intro.tease3": "Once you know, it'll be your turn to read someone's mind.",
+  "intro.seek": "Start",
 
   "perform.lead1": "Pick a number",
   "perform.lead2": "from 1 to 60",
@@ -235,7 +235,7 @@ const en = {
 
   "practice.title": "Practice",
   "practice.note":
-    "The app plays the audience. For each card you'll see everyone's Yes/No — keep a running total for each person in your head.",
+    "This is practice for the real thing — reading multiple people at once.\nEach card shows everyone's Yes/No. Keep a running total in your head for each person.",
   "practice.players": "Players",
   "practice.playersCount": "{n}",
   "practice.timePerCard": "Time per card",

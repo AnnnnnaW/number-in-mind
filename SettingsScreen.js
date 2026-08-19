@@ -196,7 +196,7 @@ function makeStyles(theme) {
       paddingVertical: 4,
       zIndex: 2,
     },
-    backText: { color: theme.inkFaint, fontSize: 30, lineHeight: 34 },
+    backText: { color: theme.ink, fontSize: 40, lineHeight: 44 },
 
     h1: {
       color: theme.ink,
@@ -208,7 +208,7 @@ function makeStyles(theme) {
 
     label: {
       color: theme.accent,
-      fontSize: 12,
+      fontSize: 14,
       letterSpacing: 3,
       marginTop: 30,
       marginBottom: 14,
@@ -246,7 +246,7 @@ function makeStyles(theme) {
     paletteSwatchDot: { width: 8, height: 8, borderRadius: 4 },
     paletteLabel: {
       color: theme.inkSoft,
-      fontSize: 12,
+      fontSize: 14,
       letterSpacing: 1,
       marginTop: 10,
     },
@@ -287,7 +287,7 @@ function makeStyles(theme) {
     },
     fontLabel: {
       color: theme.inkSoft,
-      fontSize: 14,
+      fontSize: 16,
       letterSpacing: 1,
       flex: 1,
     },
@@ -304,18 +304,18 @@ function makeStyles(theme) {
       paddingHorizontal: 18,
     },
     switchTexts: { flex: 1, paddingRight: 14 },
-    switchLabel: { color: theme.ink, fontSize: 14, letterSpacing: 1 },
+    switchLabel: { color: theme.ink, fontSize: 16, letterSpacing: 1 },
     switchNote: {
       color: theme.inkFaint,
-      fontSize: 11,
-      lineHeight: 16,
+      fontSize: 14,
+      lineHeight: 18,
       marginTop: 4,
     },
 
     note: {
       color: theme.inkFaint,
-      fontSize: 11,
-      lineHeight: 20,
+      fontSize: 14,
+      lineHeight: 22,
       textAlign: "center",
       marginTop: 34,
       paddingHorizontal: 10,
