@@ -26,8 +26,7 @@ import { t } from "./i18n";
  * スリープ防止は本番・練習の画面が開くときに prefs から読むので、ここでは保存だけする。
  */
 
-// TODO: 審査を通った実際の App Store URL に差し替える
-const APP_STORE_URL = "https://apps.apple.com/app/idXXXXXXXXXX";
+const APP_STORE_URL = "https://apps.apple.com/us/app/number-in-mind/id6801572572";
 
 export default function SettingsScreen({ onExit, onReplayIntro }) {
   const { theme, paletteId, fontId, setPaletteId, setFontId } =
