@@ -147,7 +147,7 @@ function AppInner() {
     return (
       <>
         <StatusBar hidden />
-        <SettingsScreen onExit={() => setMode(null)} />
+        <SettingsScreen onExit={() => setMode(null)} onReplayIntro={replayIntro} />
       </>
     );
   }
@@ -156,11 +156,7 @@ function AppInner() {
     return (
       <>
         <StatusBar hidden />
-        <ExplainScreen
-          number={lastNumber}
-          onClose={() => setMode(null)}
-          onReplayIntro={replayIntro}
-        />
+        <ExplainScreen number={lastNumber} onClose={() => setMode(null)} />
       </>
     );
   }

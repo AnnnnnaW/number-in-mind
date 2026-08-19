@@ -3,6 +3,7 @@ import {
   Pressable,
   SafeAreaView,
   ScrollView,
+  Share,
   StyleSheet,
   Switch,
   Text,
@@ -25,7 +26,10 @@ import { t } from "./i18n";
  * スリープ防止は本番・練習の画面が開くときに prefs から読むので、ここでは保存だけする。
  */
 
-export default function SettingsScreen({ onExit }) {
+// TODO: 審査を通った実際の App Store URL に差し替える
+const APP_STORE_URL = "https://apps.apple.com/app/idXXXXXXXXXX";
+
+export default function SettingsScreen({ onExit, onReplayIntro }) {
   const { theme, paletteId, fontId, setPaletteId, setFontId } =
     useThemeSettings();
   const styles = useMemo(() => makeStyles(theme), [theme]);
@@ -47,6 +51,13 @@ export default function SettingsScreen({ onExit }) {
   const toggleKeepAwake = (value) => {
     setKeepAwake(value);
     prefs.update({ keepAwake: value });
+  };
+
+  const shareApp = () => {
+    Share.share({
+      message: `${t("settings.shareText")} ${APP_STORE_URL}`,
+      url: APP_STORE_URL, // iOS ではこちらが優先して使われる
+    }).catch(() => {});
   };
 
   return (
@@ -94,6 +105,22 @@ export default function SettingsScreen({ onExit }) {
             thumbColor={theme.cardBottom}
             ios_backgroundColor={theme.inkLine}
           />
+        </View>
+
+        <Text style={styles.label}>{t("settings.helpShare")}</Text>
+        <View style={styles.helpColumn}>
+          <Pressable
+            onPress={onReplayIntro}
+            style={({ pressed }) => [styles.helpRow, pressed && { opacity: 0.6 }]}
+          >
+            <Text style={styles.helpText}>{t("settings.replayIntro")}</Text>
+          </Pressable>
+          <Pressable
+            onPress={shareApp}
+            style={({ pressed }) => [styles.helpRow, pressed && { opacity: 0.6 }]}
+          >
+            <Text style={styles.helpText}>{t("settings.shareApp")}</Text>
+          </Pressable>
         </View>
 
         <Text style={styles.note}>{t("settings.note")}</Text>
@@ -311,6 +338,17 @@ function makeStyles(theme) {
       lineHeight: 18,
       marginTop: 4,
     },
+
+    helpColumn: { alignSelf: "stretch" },
+    helpRow: {
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.inkLine,
+      borderRadius: 12,
+      paddingVertical: 14,
+      paddingHorizontal: 18,
+      marginBottom: 10,
+    },
+    helpText: { color: theme.accent, fontSize: 16, letterSpacing: 1, textAlign: "center" },
 
     note: {
       color: theme.inkFaint,

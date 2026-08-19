@@ -14,7 +14,7 @@ import { t } from './i18n';
 
 const SAMPLE = 37;
 
-export default function ExplainScreen({ number, onClose, onReplayIntro }) {
+export default function ExplainScreen({ number, onClose }) {
   const theme = useTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
@@ -96,13 +96,6 @@ export default function ExplainScreen({ number, onClose, onReplayIntro }) {
           style={({ pressed }) => [styles.primary, pressed && { opacity: 0.55 }]}
         >
           <Text style={styles.primaryText}>{t('common.close')}</Text>
-        </Pressable>
-
-        <Pressable
-          onPress={onReplayIntro}
-          style={({ pressed }) => [styles.secondary, pressed && { opacity: 0.5 }]}
-        >
-          <Text style={styles.secondaryText}>{t('explain.replay')}</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>
@@ -221,7 +214,5 @@ function makeStyles(theme) {
       borderColor: theme.accent,
     },
     primaryText: { color: theme.accent, fontSize: 15, letterSpacing: 4, marginLeft: 4 },
-    secondary: { alignSelf: 'center', marginTop: 14, padding: 12 },
-    secondaryText: { color: theme.inkFaint, fontSize: 14, letterSpacing: 1 },
   });
 }

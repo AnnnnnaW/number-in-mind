@@ -56,6 +56,10 @@ const ja = {
   "settings.keepAwakeNote": "プレイ中、画面が暗くならないようにします。",
   "settings.note":
     "選択するとその場で変更が反映され、次回起動時も同じ設定で開きます。",
+  "settings.helpShare": "ヘルプ・共有",
+  "settings.replayIntro": "イントロをもう一度見る",
+  "settings.shareApp": "アプリをシェア",
+  "settings.shareText": "『Number in mind』、数字当てカードのマジックアプリ。使ってみて！",
   "palette.gold": "ネイビー",
   "palette.crimson": "レッド",
   "palette.ivory": "アイボリー",
@@ -78,7 +82,7 @@ const ja = {
   "intro.revealTail": "ですね？",
   "intro.tap": "画面をタップ",
   "intro.teaseLead": "なぜ、あなたの数字が分かったのか？",
-  "intro.tease1": "その秘密は、光っているマークの中に隠れています。",
+  "intro.tease1": "その秘密は、光るマークの中に隠れています。",
   "intro.tease2": "タップして確かめてみましょう。",
   "intro.tease3": "分かったら、今度はあなたが誰かの数字を当てる番です。",
   "intro.seek": "はじめる",
@@ -119,12 +123,11 @@ const ja = {
   "explain.pColor": "ありません。相手に法則を探させるための飾りです。",
   "explain.closing1": "これであなたも同じことができます。",
   "explain.closing2": "今度はあなたが、誰かの心を読む番です。",
-  "explain.replay": "イントロをもう一度見る",
 
   // 練習
   "practice.title": "練習",
   "practice.note":
-    "本番さながらに、複数人を同時に相手にする練習です。\nカードが出るたびに、それぞれの「ある / ない」を見て、頭の中で合計を計算していってください。",
+    "複数人を同時に相手する練習です。\nアプリが観客役をやります。カードが出るたびに、それぞれの「ある / ない」を見て、頭の中で観客の数字をそれぞれ導いてください。",
   "practice.players": "人数",
   "practice.playersCount": "{n}人",
   "practice.timePerCard": "1枚あたりの時間",
@@ -169,6 +172,10 @@ const en = {
   "settings.keepAwake": "Keep screen awake",
   "settings.keepAwakeNote": "Stops the screen from dimming while you play.",
   "settings.note": "Changes apply right away and are saved for next time.",
+  "settings.helpShare": "Help & Share",
+  "settings.replayIntro": "Watch the intro again",
+  "settings.shareApp": "Share this app",
+  "settings.shareText": "Number in mind — a number-guessing card trick app. Check it out!",
   "palette.gold": "Navy",
   "palette.crimson": "Red",
   "palette.ivory": "Ivory",
@@ -231,11 +238,10 @@ const en = {
     "No. They're decoration to keep people hunting for a fake pattern.",
   "explain.closing1": "Now you can do the same.",
   "explain.closing2": "It's your turn to read someone's mind.",
-  "explain.replay": "Watch the intro again",
 
   "practice.title": "Practice",
   "practice.note":
-    "This is practice for the real thing — reading multiple people at once.\nEach card shows everyone's Yes/No. Keep a running total in your head for each person.",
+    "Practice reading multiple people at once.\nThe app plays your audience. For each card, look at everyone's Yes/No and work out each person's number in your head.",
   "practice.players": "Players",
   "practice.playersCount": "{n}",
   "practice.timePerCard": "Time per card",
