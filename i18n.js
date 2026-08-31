@@ -38,6 +38,7 @@ const ja = {
   // ホーム
   "home.start": "はじめる",
   "home.practice": "練習",
+  "home.guess": "あてっこ",
   "home.settings": "設定",
 
   // 共通
@@ -157,6 +158,7 @@ const ja = {
 const en = {
   "home.start": "Start",
   "home.practice": "Practice",
+  "home.guess": "Guess",
   "home.settings": "Settings",
 
   "common.yes": "Yes",

@@ -7,6 +7,7 @@ import * as prefs from './prefs';
 import { t } from './i18n';
 import PerformanceScreen from './PerformanceScreen';
 import PracticeScreen from './PracticeScreen';
+import GuessScreen from './GuessScreen';
 import IntroScreen from './IntroScreen';
 import ExplainScreen from './ExplainScreen';
 import SettingsScreen from './SettingsScreen';
@@ -26,6 +27,7 @@ import SettingsScreen from './SettingsScreen';
 const MODE = {
   PERFORM: 'perform',
   PRACTICE: 'practice',
+  GUESS: 'guess',
   EXPLAIN: 'explain',
   SETTINGS: 'settings',
 };
@@ -143,6 +145,15 @@ function AppInner() {
     );
   }
 
+  if (mode === MODE.GUESS) {
+    return (
+      <>
+        <StatusBar hidden />
+        <GuessScreen onExit={() => setMode(null)} />
+      </>
+    );
+  }
+
   if (mode === MODE.SETTINGS) {
     return (
       <>
@@ -189,6 +200,13 @@ function AppInner() {
         style={({ pressed }) => [styles.secondary, pressed && { opacity: 0.5 }]}
       >
         <Text style={styles.secondaryText}>{t('home.practice')}</Text>
+      </Pressable>
+
+      <Pressable
+        onPress={() => setMode(MODE.GUESS)}
+        style={({ pressed }) => [styles.secondary, pressed && { opacity: 0.5 }]}
+      >
+        <Text style={styles.secondaryText}>{t('home.guess')}</Text>
       </Pressable>
 
       <Pressable
