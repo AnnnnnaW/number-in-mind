@@ -196,17 +196,17 @@ function AppInner() {
       </Pressable>
 
       <Pressable
+        onPress={() => setMode(MODE.GUESS)}
+        style={({ pressed }) => [styles.primary, styles.primaryStacked, pressed && { opacity: 0.55 }]}
+      >
+        <Text style={styles.primaryText}>{t('home.guess')}</Text>
+      </Pressable>
+
+      <Pressable
         onPress={() => setMode(MODE.PRACTICE)}
         style={({ pressed }) => [styles.secondary, pressed && { opacity: 0.5 }]}
       >
         <Text style={styles.secondaryText}>{t('home.practice')}</Text>
-      </Pressable>
-
-      <Pressable
-        onPress={() => setMode(MODE.GUESS)}
-        style={({ pressed }) => [styles.secondary, pressed && { opacity: 0.5 }]}
-      >
-        <Text style={styles.secondaryText}>{t('home.guess')}</Text>
       </Pressable>
 
       <Pressable
@@ -273,6 +273,9 @@ function makeStyles(theme) {
       borderRadius: 999,
       borderWidth: 1,
       borderColor: theme.accent,
+    },
+    primaryStacked: {
+      marginTop: 14,
     },
     primaryText: {
       color: theme.accent,

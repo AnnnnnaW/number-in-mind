@@ -38,7 +38,7 @@ const ja = {
   // ホーム
   "home.start": "自分で当てる",
   "home.practice": "練習",
-  "home.guess": "アプリに当ててもらう",
+  "home.guess": "アプリが当てる",
   "home.settings": "設定",
 
   // 共通
@@ -55,12 +55,12 @@ const ja = {
   "settings.screen": "画面",
   "settings.keepAwake": "スリープ防止",
   "settings.keepAwakeNote": "プレイ中、画面が暗くならないようにします。",
-  "settings.note":
-    "変更はその場で反映され、次回起動時も同じ設定で開きます。",
+  "settings.note": "変更はその場で反映され、次回起動時も同じ設定で開きます。",
   "settings.helpShare": "ヘルプ・共有",
   "settings.replayIntro": "イントロをもう一度見る",
   "settings.shareApp": "アプリをシェア",
-  "settings.shareText": "『Number in mind』、数字当てカードのマジックアプリ。使ってみて！",
+  "settings.shareText":
+    "『Number in mind』、数字当てカードのマジックアプリ。使ってみて！",
   "palette.gold": "ネイビー",
   "palette.crimson": "レッド",
   "palette.ivory": "アイボリー",
@@ -177,7 +177,8 @@ const en = {
   "settings.helpShare": "Help & Share",
   "settings.replayIntro": "Watch the intro again",
   "settings.shareApp": "Share this app",
-  "settings.shareText": "Number in mind — a number-guessing card trick app. Check it out!",
+  "settings.shareText":
+    "Number in mind — a number-guessing card trick app. Check it out!",
   "palette.gold": "Navy",
   "palette.crimson": "Red",
   "palette.ivory": "Ivory",
