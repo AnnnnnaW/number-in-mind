@@ -190,9 +190,9 @@ function AppInner() {
 
       <Pressable
         onPress={() => setMode(MODE.PERFORM)}
-        style={({ pressed }) => [styles.primary, pressed && { opacity: 0.55 }]}
+        style={({ pressed }) => [styles.primary, styles.primaryFilled, pressed && { opacity: 0.7 }]}
       >
-        <Text style={styles.primaryText}>{t('home.start')}</Text>
+        <Text style={[styles.primaryText, styles.primaryFilledText]}>{t('home.start')}</Text>
       </Pressable>
 
       <Pressable
@@ -276,6 +276,12 @@ function makeStyles(theme) {
     },
     primaryStacked: {
       marginTop: 14,
+    },
+    primaryFilled: {
+      backgroundColor: theme.accent,
+    },
+    primaryFilledText: {
+      color: theme.backdrop,
     },
     primaryText: {
       color: theme.accent,
