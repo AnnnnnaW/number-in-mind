@@ -266,10 +266,10 @@ function makeStyles(theme) {
       marginBottom: 48,
     },
     primary: {
-      minWidth: 200,
+      width: 240,
       alignItems: 'center',
       paddingVertical: 15,
-      paddingHorizontal: 40,
+      paddingHorizontal: 20,
       borderRadius: 999,
       borderWidth: 1,
       borderColor: theme.accent,
