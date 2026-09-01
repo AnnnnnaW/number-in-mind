@@ -36,9 +36,9 @@ export const locale = detectLocale();
 
 const ja = {
   // ホーム
-  "home.start": "はじめる",
+  "home.start": "自分で当てる",
   "home.practice": "練習",
-  "home.guess": "あてっこ",
+  "home.guess": "アプリに当ててもらう",
   "home.settings": "設定",
 
   // 共通
@@ -156,9 +156,9 @@ const ja = {
 };
 
 const en = {
-  "home.start": "Start",
+  "home.start": "You Guess",
   "home.practice": "Practice",
-  "home.guess": "Guess",
+  "home.guess": "App Guesses",
   "home.settings": "Settings",
 
   "common.yes": "Yes",
