@@ -169,11 +169,15 @@ export default function GuessScreen({ onExit }) {
         </Animated.Text>
       </View>
 
-      {guess.revealDone && (
-        <PillButton onPress={playAgain} style={styles.startButton} textStyle={styles.startText}>
-          {t('common.again')}
-        </PillButton>
-      )}
+      {/* ボタンの出現でrevealBody(flex:1)の高さが変わり画面が跳ねないよう、
+          出し入れではなく最初から置いたまま透明度と押下可否だけ切り替える */}
+      <PillButton
+        onPress={guess.revealDone ? playAgain : undefined}
+        style={[styles.startButton, !guess.revealDone && styles.startButtonHidden]}
+        textStyle={styles.startText}
+      >
+        {t('common.again')}
+      </PillButton>
     </SafeAreaView>
   );
 }
@@ -202,6 +206,8 @@ function makeStyles(theme) {
     // PillButton/BackLink(ui.js)への上書き分だけ残す
     startButton: { marginTop: 46, paddingHorizontal: 54 },
     startText: { letterSpacing: 5, marginLeft: 5 },
+    // revealDoneになるまでは場所だけ確保して透明にしておく（②の跳ね防止）
+    startButtonHidden: { opacity: 0 },
 
     dots: { flexDirection: 'row', justifyContent: 'center', marginTop: 14 },
     dot: {

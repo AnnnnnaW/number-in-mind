@@ -228,11 +228,11 @@ function chromeStyles(theme) {
       borderColor: theme.accent,
     },
     pillFilled: { backgroundColor: theme.accent },
-    pillText: { color: theme.accent, fontSize: 16, letterSpacing: 4, marginLeft: 4 },
+    pillText: { color: theme.accent, fontSize: 16, letterSpacing: 4, marginLeft: 4, textAlign: 'center' },
     pillTextFilled: { color: theme.backdrop },
 
     text: { alignSelf: 'center', padding: 14 },
-    textLabel: { color: theme.inkSoft, fontSize: 16, letterSpacing: 2 },
+    textLabel: { color: theme.inkSoft, fontSize: 16, letterSpacing: 2, textAlign: 'center' },
   });
 }
 
