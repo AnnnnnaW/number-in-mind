@@ -10,7 +10,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 
-import { CARDS } from './cards';
+import { CARDS, MAX_NUMBER } from './cards';
 import { CardFace } from './ui';
 import { useTheme } from './ThemeContext';
 import { sumOf } from './solve';
@@ -30,14 +30,14 @@ import { t } from './i18n';
 const OUT_MS = 240;
 const IN_MS = 260;
 
-const PHASE = { ASKING: 'asking', REVEAL: 'reveal' };
+const PHASE = { WELCOME: 'welcome', ASKING: 'asking', REVEAL: 'reveal' };
 
 export default function GuessScreen({ onExit }) {
   const { width } = useWindowDimensions();
   const theme = useTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
-  const [phase, setPhase] = useState(PHASE.ASKING);
+  const [phase, setPhase] = useState(PHASE.WELCOME);
   const [index, setIndex] = useState(0);
   const [picks, setPicks] = useState([]);
   const [round, setRound] = useState(0);
@@ -57,7 +57,7 @@ export default function GuessScreen({ onExit }) {
     titleIn.setValue(0);
     numberIn.setValue(0);
     tailIn.setValue(0);
-    setPhase(PHASE.ASKING);
+    setPhase(PHASE.WELCOME);
     setRound((r) => r + 1);
   }, [titleIn, numberIn, tailIn]);
 
@@ -126,6 +126,32 @@ export default function GuessScreen({ onExit }) {
     anim.start(() => setRevealDone(true));
     return () => anim.stop();
   }, [phase, round, titleIn, numberIn, tailIn]);
+
+  /* ---------------- 数字を思い浮かべる ---------------- */
+  if (phase === PHASE.WELCOME) {
+    return (
+      <SafeAreaView style={styles.root}>
+        <BackLink onPress={onExit} styles={styles} />
+
+        <View style={styles.introBody}>
+          <Text style={styles.introLead}>{t('intro.lead1', { max: MAX_NUMBER })}</Text>
+          <Text style={styles.introLead}>{t('intro.lead2')}</Text>
+          <Text style={styles.introLead}>{t('intro.lead3')}</Text>
+          <View style={styles.introRule} />
+          <Text style={styles.introSub}>{t('intro.sub1', { count: CARDS.length })}</Text>
+          <Text style={styles.introSub}>{t('intro.sub2')}</Text>
+          <Text style={styles.introSub}>{t('intro.sub3')}</Text>
+        </View>
+
+        <Pressable
+          onPress={() => setPhase(PHASE.ASKING)}
+          style={({ pressed }) => [styles.startButton, pressed && { opacity: 0.55 }]}
+        >
+          <Text style={styles.startText}>{t('common.start')}</Text>
+        </Pressable>
+      </SafeAreaView>
+    );
+  }
 
   /* ---------------- 質問中 ---------------- */
   if (phase === PHASE.ASKING) {
