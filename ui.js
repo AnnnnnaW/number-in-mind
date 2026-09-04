@@ -217,7 +217,7 @@ function chromeStyles(theme) {
       paddingVertical: 6,
       zIndex: 2,
     },
-    backText: { color: theme.ink, fontSize: 40, lineHeight: 44 },
+    backText: { color: theme.ink, fontSize: 48, lineHeight: 52 },
 
     pill: {
       alignSelf: 'center',
