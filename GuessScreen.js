@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Animated,
-  Easing,
   Pressable,
   SafeAreaView,
   StyleSheet,
@@ -13,7 +12,8 @@ import {
 import { CARDS, MAX_NUMBER } from './cards';
 import { CardFace } from './ui';
 import { useTheme } from './ThemeContext';
-import { sumOf } from './solve';
+import { useCardReveal } from './useCardReveal';
+import { AllNoRetry } from './AllNoRetry';
 import { t } from './i18n';
 
 /**
@@ -23,14 +23,14 @@ import { t } from './i18n';
  * 何度でもループできる形にしたもの。イントロは初回だけの一回きりの流れだが、
  * こちらは子どもが「もう一回！」と繰り返し遊べることを目的にしている。
  *
- * イントロと同じ理由で、ここでも solve.js を import する（＝アプリが答えを
- * 計算する）。ただし本番（PerformanceScreen）からは今までどおり一切 import しない。
+ * カードを見せて当てる部分のロジックは useCardReveal に切り出してあり、
+ * イントロ（IntroScreen.js）と共通。ここでは「何度でもループする」という、
+ * あてっこモードだけの誘導（WELCOME を毎回はさむ）を持つ。
+ *
+ * 本番（PerformanceScreen）からは今までどおり一切 import しない。
  */
 
-const OUT_MS = 240;
-const IN_MS = 260;
-
-const PHASE = { WELCOME: 'welcome', ASKING: 'asking', REVEAL: 'reveal' };
+const PHASE = { WELCOME: 'welcome', GUESSING: 'guessing' };
 
 export default function GuessScreen({ onExit }) {
   const { width } = useWindowDimensions();
@@ -38,94 +38,13 @@ export default function GuessScreen({ onExit }) {
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
   const [phase, setPhase] = useState(PHASE.WELCOME);
-  const [index, setIndex] = useState(0);
-  const [picks, setPicks] = useState([]);
-  const [round, setRound] = useState(0);
+  const guess = useCardReveal();
 
-  const shift = useRef(new Animated.Value(0)).current;
-  const busy = useRef(false);
-
-  const titleIn = useRef(new Animated.Value(0)).current;
-  const numberIn = useRef(new Animated.Value(0)).current;
-  const tailIn = useRef(new Animated.Value(0)).current;
-  const [revealDone, setRevealDone] = useState(false);
-
+  // 「もう一度」。次のラウンドの前に、必ず「数字を思い浮かべてください」の画面へ戻す
   const playAgain = useCallback(() => {
-    setPicks([]);
-    setIndex(0);
-    setRevealDone(false);
-    titleIn.setValue(0);
-    numberIn.setValue(0);
-    tailIn.setValue(0);
+    guess.reset();
     setPhase(PHASE.WELCOME);
-    setRound((r) => r + 1);
-  }, [titleIn, numberIn, tailIn]);
-
-  const answer = useCallback(
-    (yes) => {
-      if (busy.current) return;
-      busy.current = true;
-      const card = CARDS[index];
-
-      Animated.timing(shift, {
-        toValue: -1,
-        duration: OUT_MS,
-        easing: Easing.in(Easing.cubic),
-        useNativeDriver: true,
-      }).start(() => {
-        const nextPicks = [...picks, { bit: card.bit, yes }];
-        setPicks(nextPicks);
-
-        if (index + 1 >= CARDS.length) {
-          setPhase(PHASE.REVEAL);
-          shift.setValue(0);
-          busy.current = false;
-          return;
-        }
-
-        setIndex(index + 1);
-        shift.setValue(1);
-        Animated.timing(shift, {
-          toValue: 0,
-          duration: IN_MS,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }).start(() => {
-          busy.current = false;
-        });
-      });
-    },
-    [index, picks, shift]
-  );
-
-  useEffect(() => {
-    if (phase !== PHASE.REVEAL) return undefined;
-    const anim = Animated.sequence([
-      Animated.delay(500),
-      Animated.timing(titleIn, {
-        toValue: 1,
-        duration: 600,
-        easing: Easing.out(Easing.quad),
-        useNativeDriver: true,
-      }),
-      Animated.delay(1100),
-      Animated.timing(numberIn, {
-        toValue: 1,
-        duration: 1700,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-      Animated.delay(600),
-      Animated.timing(tailIn, {
-        toValue: 1,
-        duration: 500,
-        easing: Easing.out(Easing.quad),
-        useNativeDriver: true,
-      }),
-    ]);
-    anim.start(() => setRevealDone(true));
-    return () => anim.stop();
-  }, [phase, round, titleIn, numberIn, tailIn]);
+  }, [guess]);
 
   /* ---------------- 数字を思い浮かべる ---------------- */
   if (phase === PHASE.WELCOME) {
@@ -144,7 +63,7 @@ export default function GuessScreen({ onExit }) {
         </View>
 
         <Pressable
-          onPress={() => setPhase(PHASE.ASKING)}
+          onPress={() => setPhase(PHASE.GUESSING)}
           style={({ pressed }) => [styles.startButton, pressed && { opacity: 0.55 }]}
         >
           <Text style={styles.startText}>{t('common.start')}</Text>
@@ -154,12 +73,12 @@ export default function GuessScreen({ onExit }) {
   }
 
   /* ---------------- 質問中 ---------------- */
-  if (phase === PHASE.ASKING) {
-    const translateX = shift.interpolate({
+  if (guess.stage === 'asking') {
+    const translateX = guess.shift.interpolate({
       inputRange: [-1, 0, 1],
       outputRange: [-width * 1.05, 0, width * 1.05],
     });
-    const opacity = shift.interpolate({
+    const opacity = guess.shift.interpolate({
       inputRange: [-1, 0, 1],
       outputRange: [0, 1, 0],
     });
@@ -170,13 +89,13 @@ export default function GuessScreen({ onExit }) {
 
         <View style={styles.stage}>
           <Animated.View style={[StyleSheet.absoluteFill, { opacity, transform: [{ translateX }] }]}>
-            <CardFace card={CARDS[index]} />
+            <CardFace card={CARDS[guess.index]} />
           </Animated.View>
         </View>
 
         <View style={styles.dots}>
           {CARDS.map((c, i) => (
-            <View key={c.bit} style={[styles.dot, i <= index && styles.dotOn]} />
+            <View key={c.bit} style={[styles.dot, i <= guess.index && styles.dotOn]} />
           ))}
         </View>
 
@@ -184,13 +103,13 @@ export default function GuessScreen({ onExit }) {
 
         <View style={styles.choices}>
           <Pressable
-            onPress={() => answer(true)}
+            onPress={() => guess.answer(true)}
             style={({ pressed }) => [styles.choice, pressed && { opacity: 0.6 }]}
           >
             <Text style={styles.choiceText}>{t('common.yes')}</Text>
           </Pressable>
           <Pressable
-            onPress={() => answer(false)}
+            onPress={() => guess.answer(false)}
             style={({ pressed }) => [styles.choice, pressed && { opacity: 0.6 }]}
           >
             <Text style={styles.choiceText}>{t('common.no')}</Text>
@@ -201,25 +120,11 @@ export default function GuessScreen({ onExit }) {
   }
 
   /* ---------------- 言い当てる ---------------- */
-  const number = sumOf(picks);
-
-  if (number === 0) {
+  if (guess.number === 0) {
     return (
       <SafeAreaView style={styles.root}>
         <BackLink onPress={onExit} styles={styles} />
-        <View style={styles.introBody}>
-          <Text style={styles.introLead}>{t('intro.oops')}</Text>
-          <View style={styles.introRule} />
-          <Text style={styles.introSub}>{t('intro.allNo1')}</Text>
-          <Text style={styles.introSub}>{t('intro.allNo2')}</Text>
-          <Text style={styles.introSub}>{t('intro.allNo3')}</Text>
-        </View>
-        <Pressable
-          onPress={playAgain}
-          style={({ pressed }) => [styles.startButton, pressed && { opacity: 0.55 }]}
-        >
-          <Text style={styles.startText}>{t('common.again')}</Text>
-        </Pressable>
+        <AllNoRetry onRetry={guess.reset} styles={styles} />
       </SafeAreaView>
     );
   }
@@ -229,7 +134,7 @@ export default function GuessScreen({ onExit }) {
       <BackLink onPress={onExit} styles={styles} />
 
       <View style={styles.revealBody}>
-        <Animated.Text style={[styles.revealLead, { opacity: titleIn }]}>
+        <Animated.Text style={[styles.revealLead, { opacity: guess.titleIn }]}>
           {t('intro.revealLead')}
         </Animated.Text>
 
@@ -238,27 +143,27 @@ export default function GuessScreen({ onExit }) {
           style={[
             styles.revealNumber,
             {
-              opacity: numberIn,
+              opacity: guess.numberIn,
               transform: [
                 {
-                  scale: numberIn.interpolate({ inputRange: [0, 1], outputRange: [1.07, 1] }),
+                  scale: guess.numberIn.interpolate({ inputRange: [0, 1], outputRange: [1.07, 1] }),
                 },
                 {
-                  translateY: numberIn.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }),
+                  translateY: guess.numberIn.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }),
                 },
               ],
             },
           ]}
         >
-          {number}
+          {guess.number}
         </Animated.Text>
 
-        <Animated.Text style={[styles.revealTail, { opacity: tailIn }]}>
+        <Animated.Text style={[styles.revealTail, { opacity: guess.tailIn }]}>
           {t('intro.revealTail')}
         </Animated.Text>
       </View>
 
-      {revealDone && (
+      {guess.revealDone && (
         <Pressable
           onPress={playAgain}
           style={({ pressed }) => [styles.startButton, pressed && { opacity: 0.55 }]}
