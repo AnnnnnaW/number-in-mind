@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 
 import { CARDS, MAX_NUMBER } from './cards';
-import { CardFace } from './ui';
+import { BackLink, CardFace, PillButton } from './ui';
 import { useTheme } from './ThemeContext';
 import { useCardReveal } from './useCardReveal';
 import { AllNoRetry } from './AllNoRetry';
@@ -50,7 +50,7 @@ export default function GuessScreen({ onExit }) {
   if (phase === PHASE.WELCOME) {
     return (
       <SafeAreaView style={styles.root}>
-        <BackLink onPress={onExit} styles={styles} />
+        <BackLink onPress={onExit} />
 
         <View style={styles.introBody}>
           <Text style={styles.introLead}>{t('intro.lead1', { max: MAX_NUMBER })}</Text>
@@ -62,12 +62,13 @@ export default function GuessScreen({ onExit }) {
           <Text style={styles.introSub}>{t('intro.sub3')}</Text>
         </View>
 
-        <Pressable
+        <PillButton
           onPress={() => setPhase(PHASE.GUESSING)}
-          style={({ pressed }) => [styles.startButton, pressed && { opacity: 0.55 }]}
+          style={styles.startButton}
+          textStyle={styles.startText}
         >
-          <Text style={styles.startText}>{t('common.start')}</Text>
-        </Pressable>
+          {t('common.start')}
+        </PillButton>
       </SafeAreaView>
     );
   }
@@ -85,7 +86,7 @@ export default function GuessScreen({ onExit }) {
 
     return (
       <SafeAreaView style={styles.root}>
-        <BackLink onPress={onExit} styles={styles} />
+        <BackLink onPress={onExit} />
 
         <View style={styles.stage}>
           <Animated.View style={[StyleSheet.absoluteFill, { opacity, transform: [{ translateX }] }]}>
@@ -123,15 +124,20 @@ export default function GuessScreen({ onExit }) {
   if (guess.number === 0) {
     return (
       <SafeAreaView style={styles.root}>
-        <BackLink onPress={onExit} styles={styles} />
-        <AllNoRetry onRetry={guess.reset} styles={styles} />
+        <BackLink onPress={onExit} />
+        <AllNoRetry
+          onRetry={guess.reset}
+          styles={styles}
+          buttonStyle={styles.startButton}
+          buttonTextStyle={styles.startText}
+        />
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.root}>
-      <BackLink onPress={onExit} styles={styles} />
+      <BackLink onPress={onExit} />
 
       <View style={styles.revealBody}>
         <Animated.Text style={[styles.revealLead, { opacity: guess.titleIn }]}>
@@ -164,26 +170,11 @@ export default function GuessScreen({ onExit }) {
       </View>
 
       {guess.revealDone && (
-        <Pressable
-          onPress={playAgain}
-          style={({ pressed }) => [styles.startButton, pressed && { opacity: 0.55 }]}
-        >
-          <Text style={styles.startText}>{t('common.again')}</Text>
-        </Pressable>
+        <PillButton onPress={playAgain} style={styles.startButton} textStyle={styles.startText}>
+          {t('common.again')}
+        </PillButton>
       )}
     </SafeAreaView>
-  );
-}
-
-function BackLink({ onPress, styles }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      hitSlop={20}
-      style={({ pressed }) => [styles.back, pressed && { opacity: 0.4 }]}
-    >
-      <Text style={styles.backText}>‹</Text>
-    </Pressable>
   );
 }
 
@@ -198,16 +189,6 @@ function makeStyles(theme) {
     },
     stage: { flex: 1, marginTop: 14 },
 
-    back: {
-      position: 'absolute',
-      top: 6,
-      left: 10,
-      paddingHorizontal: 10,
-      paddingVertical: 6,
-      zIndex: 2,
-    },
-    backText: { color: theme.ink, fontSize: 40, lineHeight: 44 },
-
     introBody: { alignItems: 'center', paddingHorizontal: 24 },
     introLead: { color: theme.ink, fontSize: 22, lineHeight: 38, letterSpacing: 1.5 },
     introRule: {
@@ -218,16 +199,9 @@ function makeStyles(theme) {
     },
     introSub: { color: theme.inkSoft, fontSize: 16, lineHeight: 26, letterSpacing: 1 },
 
-    startButton: {
-      alignSelf: 'center',
-      marginTop: 46,
-      paddingVertical: 15,
-      paddingHorizontal: 54,
-      borderRadius: 999,
-      borderWidth: 1,
-      borderColor: theme.accent,
-    },
-    startText: { color: theme.accent, fontSize: 16, letterSpacing: 5, marginLeft: 5 },
+    // PillButton/BackLink(ui.js)への上書き分だけ残す
+    startButton: { marginTop: 46, paddingHorizontal: 54 },
+    startText: { letterSpacing: 5, marginLeft: 5 },
 
     dots: { flexDirection: 'row', justifyContent: 'center', marginTop: 14 },
     dot: {

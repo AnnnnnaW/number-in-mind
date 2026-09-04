@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import * as prefs from './prefs';
 import { t } from './i18n';
+import { PillButton, TextButton } from './ui';
 import PerformanceScreen from './PerformanceScreen';
 import PracticeScreen from './PracticeScreen';
 import GuessScreen from './GuessScreen';
@@ -188,26 +189,24 @@ function AppInner() {
 
       <Text style={styles.title}>Number in mind</Text>
 
-      <Pressable
-        onPress={() => setMode(MODE.PERFORM)}
-        style={({ pressed }) => [styles.primary, styles.primaryFilled, pressed && { opacity: 0.7 }]}
-      >
-        <Text style={[styles.primaryText, styles.primaryFilledText]}>{t('home.start')}</Text>
-      </Pressable>
+      <PillButton onPress={() => setMode(MODE.PERFORM)} filled style={styles.primaryBox}>
+        {t('home.start')}
+      </PillButton>
 
-      <Pressable
+      <PillButton
         onPress={() => setMode(MODE.GUESS)}
-        style={({ pressed }) => [styles.primary, styles.primaryStacked, pressed && { opacity: 0.55 }]}
+        style={[styles.primaryBox, styles.primaryStacked]}
       >
-        <Text style={styles.primaryText}>{t('home.guess')}</Text>
-      </Pressable>
+        {t('home.guess')}
+      </PillButton>
 
-      <Pressable
+      <TextButton
         onPress={() => setMode(MODE.PRACTICE)}
-        style={({ pressed }) => [styles.secondary, pressed && { opacity: 0.5 }]}
+        style={styles.secondaryStack}
+        textStyle={styles.secondaryLabel}
       >
-        <Text style={styles.secondaryText}>{t('home.practice')}</Text>
-      </Pressable>
+        {t('home.practice')}
+      </TextButton>
 
       <Pressable
         onPress={() => setMode(MODE.SETTINGS)}
@@ -265,37 +264,19 @@ function makeStyles(theme) {
       letterSpacing: 4,
       marginBottom: 48,
     },
-    primary: {
+    // PillButton/TextButton は ui.js の共通コンポーネント。
+    // ここではホーム画面だけの個別事情(幅を揃える・letterSpacingが他画面と違う等)だけを上書きする
+    primaryBox: {
       width: 240,
-      alignItems: 'center',
-      paddingVertical: 15,
       paddingHorizontal: 20,
-      borderRadius: 999,
-      borderWidth: 1,
-      borderColor: theme.accent,
     },
     primaryStacked: {
       marginTop: 14,
     },
-    primaryFilled: {
-      backgroundColor: theme.accent,
-    },
-    primaryFilledText: {
-      color: theme.backdrop,
-    },
-    primaryText: {
-      color: theme.accent,
-      fontSize: 16,
-      letterSpacing: 4,
-      marginLeft: 4,
-    },
-    secondary: {
+    secondaryStack: {
       marginTop: 20,
-      padding: 14,
     },
-    secondaryText: {
-      color: theme.inkSoft,
-      fontSize: 16,
+    secondaryLabel: {
       letterSpacing: 3,
     },
     footerLink: { marginTop: 8, padding: 10 },

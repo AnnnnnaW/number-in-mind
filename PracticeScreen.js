@@ -15,7 +15,7 @@ import {
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 
 import { CARDS, MAX_NUMBER } from './cards';
-import { CardFace } from './ui';
+import { BackLink, CardFace, PillButton, TextButton } from './ui';
 import { useTheme } from './ThemeContext';
 import * as prefs from './prefs';
 import {
@@ -271,7 +271,7 @@ export default function PracticeScreen({ onExit }) {
     const best = scores.best[keyOf(players, limitId)];
     return (
       <SafeAreaView style={styles.root}>
-        <BackLink onPress={onExit} styles={styles} />
+        <BackLink onPress={onExit} />
         <ScrollView contentContainerStyle={styles.setupBody}>
           <Text style={styles.h1}>{t('practice.title')}</Text>
           <Text style={styles.note}>{t('practice.note')}</Text>
@@ -318,12 +318,9 @@ export default function PracticeScreen({ onExit }) {
             </View>
           </View>
 
-          <Pressable
-            onPress={start}
-            style={({ pressed }) => [styles.primary, pressed && { opacity: 0.55 }]}
-          >
-            <Text style={styles.primaryText}>{t('common.start')}</Text>
-          </Pressable>
+          <PillButton onPress={start} style={styles.primary}>
+            {t('common.start')}
+          </PillButton>
 
           {scores.history.length > 0 ? (
             <>
@@ -347,12 +344,9 @@ export default function PracticeScreen({ onExit }) {
                   </Text>
                 </View>
               ))}
-              <Pressable
-                onPress={resetScores}
-                style={({ pressed }) => [styles.secondary, pressed && { opacity: 0.5 }]}
-              >
-                <Text style={styles.clearText}>{t('practice.clearHistory')}</Text>
-              </Pressable>
+              <TextButton onPress={resetScores} style={styles.secondary} textStyle={styles.clearText}>
+                {t('practice.clearHistory')}
+              </TextButton>
             </>
           ) : null}
         </ScrollView>
@@ -488,7 +482,7 @@ export default function PracticeScreen({ onExit }) {
 
         {run.results.map((r) => (
           <View style={styles.resultRow} key={r.player}>
-            <Text style={[styles.resultMark, { color: r.correct ? theme.accent : theme.no === theme.accent ? theme.accent : '#FF6A5E' }]}>
+            <Text style={[styles.resultMark, { color: r.correct ? theme.accent : theme.wrong }]}>
               {r.correct ? '○' : '×'}
             </Text>
             <Text style={styles.resultName}>{r.player}</Text>
@@ -504,18 +498,12 @@ export default function PracticeScreen({ onExit }) {
           </View>
         ))}
 
-        <Pressable
-          onPress={start}
-          style={({ pressed }) => [styles.primary, pressed && { opacity: 0.55 }]}
-        >
-          <Text style={styles.primaryText}>{t('common.again')}</Text>
-        </Pressable>
-        <Pressable
-          onPress={() => setPhase(PHASE.SETUP)}
-          style={({ pressed }) => [styles.secondary, pressed && { opacity: 0.5 }]}
-        >
-          <Text style={styles.secondaryText}>{t('practice.changeSetup')}</Text>
-        </Pressable>
+        <PillButton onPress={start} style={styles.primary}>
+          {t('common.again')}
+        </PillButton>
+        <TextButton onPress={() => setPhase(PHASE.SETUP)} style={styles.secondary}>
+          {t('practice.changeSetup')}
+        </TextButton>
       </ScrollView>
     </SafeAreaView>
   );
@@ -540,18 +528,6 @@ function Badge({ children, styles }) {
   );
 }
 
-function BackLink({ onPress, styles }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      hitSlop={20}
-      style={({ pressed }) => [styles.back, pressed && { opacity: 0.4 }]}
-    >
-      <Text style={styles.backText}>‹</Text>
-    </Pressable>
-  );
-}
-
 function makeStyles(theme) {
   return StyleSheet.create({
     root: {
@@ -562,16 +538,6 @@ function makeStyles(theme) {
     },
     fill: { flex: 1 },
     stage: { flex: 1 },
-
-    back: {
-      position: 'absolute',
-      top: 6,
-      left: 10,
-      paddingHorizontal: 10,
-      paddingVertical: 6,
-      zIndex: 2,
-    },
-    backText: { color: theme.ink, fontSize: 40, lineHeight: 44 },
 
     h1: { color: theme.ink, fontSize: 26, letterSpacing: 3, textAlign: 'center', marginBottom: 10 },
     h2: {
@@ -650,18 +616,9 @@ function makeStyles(theme) {
     historyRight: { color: theme.inkSoft, fontSize: 14, letterSpacing: 1 },
     clearText: { color: theme.inkFaint, fontSize: 14, letterSpacing: 2 },
 
-    primary: {
-      alignSelf: 'center',
-      marginTop: 34,
-      paddingVertical: 15,
-      paddingHorizontal: 52,
-      borderRadius: 999,
-      borderWidth: 1,
-      borderColor: theme.accent,
-    },
-    primaryText: { color: theme.accent, fontSize: 16, letterSpacing: 4, marginLeft: 4 },
-    secondary: { alignSelf: 'center', marginTop: 16, padding: 12 },
-    secondaryText: { color: theme.inkSoft, fontSize: 16, letterSpacing: 2 },
+    // PillButton/TextButton(ui.js)への上書き分だけ残す
+    primary: { marginTop: 34, paddingHorizontal: 52 },
+    secondary: { marginTop: 16, padding: 12 },
 
     /* 回答バー */
     answerBar: { flexDirection: 'row', justifyContent: 'center', marginTop: 12 },
@@ -775,6 +732,6 @@ function makeStyles(theme) {
       fontVariant: ['tabular-nums'],
     },
     resultBreakdown: { color: theme.inkSoft, fontSize: 14, letterSpacing: 1, marginTop: 2 },
-    resultYours: { color: '#FF6A5E', fontSize: 14, letterSpacing: 1 },
+    resultYours: { color: theme.wrong, fontSize: 14, letterSpacing: 1 },
   });
 }

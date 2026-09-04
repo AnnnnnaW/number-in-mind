@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 
 import { CARDS, MAX_NUMBER } from './cards';
-import { CardFace } from './ui';
+import { CardFace, PillButton } from './ui';
 import { useTheme } from './ThemeContext';
 import { useCardReveal } from './useCardReveal';
 import { AllNoRetry } from './AllNoRetry';
@@ -55,12 +55,13 @@ export default function IntroScreen({ onFinish, onSkip }) {
           <Text style={styles.introSub}>{t('intro.sub3')}</Text>
         </View>
 
-        <Pressable
+        <PillButton
           onPress={() => setPhase(PHASE.GUESSING)}
-          style={({ pressed }) => [styles.startButton, pressed && { opacity: 0.55 }]}
+          style={styles.startButton}
+          textStyle={styles.startText}
         >
-          <Text style={styles.startText}>{t('common.start')}</Text>
-        </Pressable>
+          {t('common.start')}
+        </PillButton>
 
         <Pressable
           onPress={onSkip}
@@ -124,7 +125,12 @@ export default function IntroScreen({ onFinish, onSkip }) {
     if (guess.number === 0) {
       return (
         <SafeAreaView style={styles.root}>
-          <AllNoRetry onRetry={guess.reset} styles={styles} />
+          <AllNoRetry
+            onRetry={guess.reset}
+            styles={styles}
+            buttonStyle={styles.startButton}
+            buttonTextStyle={styles.startText}
+          />
         </SafeAreaView>
       );
     }
@@ -189,12 +195,9 @@ export default function IntroScreen({ onFinish, onSkip }) {
         <Text style={styles.teaseSub}>{t('intro.tease3')}</Text>
       </View>
 
-      <Pressable
-        onPress={() => onFinish(guess.number)}
-        style={({ pressed }) => [styles.startButton, pressed && { opacity: 0.55 }]}
-      >
-        <Text style={styles.startText}>{t('intro.seek')}</Text>
-      </Pressable>
+      <PillButton onPress={() => onFinish(guess.number)} style={styles.startButton} textStyle={styles.startText}>
+        {t('intro.seek')}
+      </PillButton>
     </SafeAreaView>
   );
 }
@@ -221,16 +224,9 @@ function makeStyles(theme) {
     },
     introSub: { color: theme.inkSoft, fontSize: 16, lineHeight: 26, letterSpacing: 1 },
 
-    startButton: {
-      alignSelf: 'center',
-      marginTop: 46,
-      paddingVertical: 15,
-      paddingHorizontal: 54,
-      borderRadius: 999,
-      borderWidth: 1,
-      borderColor: theme.accent,
-    },
-    startText: { color: theme.accent, fontSize: 16, letterSpacing: 5, marginLeft: 5 },
+    // PillButton(ui.js)への上書き分だけ残す
+    startButton: { marginTop: 46, paddingHorizontal: 54 },
+    startText: { letterSpacing: 5, marginLeft: 5 },
 
     skip: { position: 'absolute', bottom: 26, left: 0, right: 0, alignItems: 'center', padding: 10 },
     skipText: { color: theme.inkFaint, fontSize: 14, letterSpacing: 1 },

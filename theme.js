@@ -26,6 +26,7 @@ export const PALETTES = {
     inkLine: "rgba(245,242,232,0.12)",
     yes: "#FFD98A",
     no: "rgba(245,242,232,0.3)",
+    wrong: "#FF6A5E",
   },
   crimson: {
     id: "crimson",
@@ -42,6 +43,7 @@ export const PALETTES = {
     inkLine: "rgba(247,238,238,0.12)",
     yes: "#FF9F9F",
     no: "rgba(247,238,238,0.3)",
+    wrong: "#FF6A5E",
   },
   ivory: {
     id: "ivory",
@@ -58,6 +60,7 @@ export const PALETTES = {
     inkLine: "rgba(23,20,13,0.14)",
     yes: "#8A6D1B",
     no: "rgba(23,20,13,0.32)",
+    wrong: "#FF6A5E",
   },
 };
 

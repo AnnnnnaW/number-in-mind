@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { BITS, MAX_NUMBER } from './cards';
 import { useTheme } from './ThemeContext';
+import { PillButton } from './ui';
 import { t } from './i18n';
 
 /**
@@ -91,12 +92,9 @@ export default function ExplainScreen({ number, onClose }) {
           <Text style={styles.closingText}>{t('explain.closing2')}</Text>
         </View>
 
-        <Pressable
-          onPress={onClose}
-          style={({ pressed }) => [styles.primary, pressed && { opacity: 0.55 }]}
-        >
-          <Text style={styles.primaryText}>{t('common.close')}</Text>
-        </Pressable>
+        <PillButton onPress={onClose} style={styles.primary} textStyle={styles.primaryText}>
+          {t('common.close')}
+        </PillButton>
       </ScrollView>
     </SafeAreaView>
   );
@@ -204,15 +202,8 @@ function makeStyles(theme) {
     },
     closingText: { color: theme.ink, fontSize: 16, lineHeight: 26, letterSpacing: 1 },
 
-    primary: {
-      alignSelf: 'center',
-      marginTop: 30,
-      paddingVertical: 14,
-      paddingHorizontal: 52,
-      borderRadius: 999,
-      borderWidth: 1,
-      borderColor: theme.accent,
-    },
-    primaryText: { color: theme.accent, fontSize: 15, letterSpacing: 4, marginLeft: 4 },
+    // PillButton(ui.js)への上書き分だけ残す
+    primary: { marginTop: 30, paddingVertical: 14, paddingHorizontal: 52 },
+    primaryText: { fontSize: 15 },
   });
 }

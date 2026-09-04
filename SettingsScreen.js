@@ -12,6 +12,7 @@ import {
 
 import { FONTS, PALETTES } from "./theme";
 import { useThemeSettings } from "./ThemeContext";
+import { BackLink } from "./ui";
 import * as prefs from "./prefs";
 import { t } from "./i18n";
 
@@ -61,7 +62,7 @@ export default function SettingsScreen({ onExit, onReplayIntro }) {
 
   return (
     <SafeAreaView style={styles.root}>
-      <BackLink onPress={onExit} styles={styles} />
+      <BackLink onPress={onExit} style={styles.back} />
       <ScrollView contentContainerStyle={styles.body}>
         <Text style={styles.h1}>{t("settings.title")}</Text>
         <Text style={styles.note}>{t("settings.note")}</Text>
@@ -196,32 +197,13 @@ function FontOption({ font, active, onPress, styles }) {
   );
 }
 
-function BackLink({ onPress, styles }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      hitSlop={20}
-      style={({ pressed }) => [styles.back, pressed && { opacity: 0.4 }]}
-    >
-      <Text style={styles.backText}>‹</Text>
-    </Pressable>
-  );
-}
-
 function makeStyles(theme) {
   return StyleSheet.create({
     root: { flex: 1, backgroundColor: theme.backdrop },
     body: { paddingTop: 44, paddingBottom: 50, paddingHorizontal: 28 },
 
-    back: {
-      position: "absolute",
-      top: 14,
-      left: 18,
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      zIndex: 2,
-    },
-    backText: { color: theme.ink, fontSize: 40, lineHeight: 44 },
+    // BackLink(ui.js)への上書き分だけ残す
+    back: { top: 14, left: 18, paddingVertical: 4 },
 
     h1: {
       color: theme.ink,

@@ -15,7 +15,7 @@ import {
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 
 import { CARDS, MAX_NUMBER } from './cards';
-import { CardFace, Ornament, Surface } from './ui';
+import { BackLink, CardFace, Ornament, PillButton, Surface } from './ui';
 import { useTheme } from './ThemeContext';
 import * as prefs from './prefs';
 import { t } from './i18n';
@@ -189,13 +189,7 @@ export default function PerformanceScreen({ onExit }) {
   if (!started) {
     return (
       <SafeAreaView style={styles.introRoot}>
-        <Pressable
-          onPress={onExit}
-          hitSlop={20}
-          style={({ pressed }) => [styles.back, pressed && { opacity: 0.4 }]}
-        >
-          <Text style={styles.backText}>‹</Text>
-        </Pressable>
+        <BackLink onPress={onExit} style={styles.back} />
         <View style={styles.introBody}>
           <Text style={styles.introLead}>{t('perform.lead1', { max: MAX_NUMBER })}</Text>
           <Text style={styles.introLead}>{t('perform.lead2')}</Text>
@@ -207,12 +201,9 @@ export default function PerformanceScreen({ onExit }) {
           <Text style={styles.introSub}>{t('perform.sub2')}</Text>
           <Text style={styles.introSub}>{t('perform.sub3')}</Text>
         </View>
-        <Pressable
-          onPress={() => setStarted(true)}
-          style={({ pressed }) => [styles.startButton, pressed && { opacity: 0.55 }]}
-        >
-          <Text style={styles.startText}>START</Text>
-        </Pressable>
+        <PillButton onPress={() => setStarted(true)} style={styles.startButton} textStyle={styles.startText}>
+          START
+        </PillButton>
         <Text style={styles.introHint}>{t('perform.hint')}</Text>
       </SafeAreaView>
     );
@@ -288,18 +279,8 @@ function makeStyles(theme) {
       }),
     },
 
-    back: {
-      position: 'absolute',
-      top: 14,
-      left: 18,
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-    },
-    backText: {
-      color: theme.ink,
-      fontSize: 40,
-      lineHeight: 44,
-    },
+    // BackLink(ui.js)への上書き分だけ残す
+    back: { top: 14, left: 18, paddingVertical: 4 },
 
     endBody: {
       flex: 1,
@@ -354,21 +335,9 @@ function makeStyles(theme) {
       lineHeight: 26,
       letterSpacing: 1,
     },
-    startButton: {
-      alignSelf: 'center',
-      marginTop: 48,
-      paddingVertical: 15,
-      paddingHorizontal: 54,
-      borderRadius: 999,
-      borderWidth: 1,
-      borderColor: theme.accent,
-    },
-    startText: {
-      color: theme.accent,
-      fontSize: 16,
-      letterSpacing: 6,
-      marginLeft: 6,
-    },
+    // PillButton(ui.js)への上書き分だけ残す
+    startButton: { marginTop: 48, paddingHorizontal: 54 },
+    startText: { letterSpacing: 6, marginLeft: 6 },
     introHint: {
       position: 'absolute',
       bottom: 34,

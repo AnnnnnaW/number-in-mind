@@ -1,6 +1,7 @@
 import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
+import { PillButton } from './ui';
 import { t } from './i18n';
 
 /**
@@ -8,10 +9,11 @@ import { t } from './i18n';
  * イントロとあてっこモードで文言・見た目ともに完全に同じなので共通化してある。
  *
  * styles はイントロ・あてっこモードそれぞれの makeStyles(theme) が持つ
- * introBody / introLead / introRule / introSub / startButton / startText を使う
- * （BackLink と同じ「呼び出し側の styles を受け取る」やり方）。
+ * introBody / introLead / introRule / introSub を使う。
+ * ボタンは ui.js の PillButton を使い、buttonStyle / buttonTextStyle で
+ * 呼び出し側の余白・letterSpacing の違いだけを上書きする。
  */
-export function AllNoRetry({ onRetry, styles }) {
+export function AllNoRetry({ onRetry, styles, buttonStyle, buttonTextStyle }) {
   return (
     <>
       <View style={styles.introBody}>
@@ -21,12 +23,9 @@ export function AllNoRetry({ onRetry, styles }) {
         <Text style={styles.introSub}>{t('intro.allNo2')}</Text>
         <Text style={styles.introSub}>{t('intro.allNo3')}</Text>
       </View>
-      <Pressable
-        onPress={onRetry}
-        style={({ pressed }) => [styles.startButton, pressed && { opacity: 0.55 }]}
-      >
-        <Text style={styles.startText}>{t('common.again')}</Text>
-      </Pressable>
+      <PillButton onPress={onRetry} style={buttonStyle} textStyle={buttonTextStyle}>
+        {t('common.again')}
+      </PillButton>
     </>
   );
 }

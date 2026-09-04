@@ -1,19 +1,13 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { COLUMNS, ROWS, ACCENT_COLORS } from './cards';
 import { useTheme } from './ThemeContext';
 
 /* ------------------------------------------------------------------ *
  * 配色とカードの見た目。本番・練習の両方でこれを使う。
- *
  * 色そのものは theme.js のパレットから来る（useTheme() で取得）。
- * この C は「デフォルト配色（紺 × 金）」で、テーマ機構を使わない
- * 場所（このファイル自身の初期値など）のための後方互換用に残してある。
  * ------------------------------------------------------------------ */
-export { PALETTES as THEMES } from './theme';
-import { PALETTES, DEFAULT_PALETTE_ID } from './theme';
-export const C = PALETTES[DEFAULT_PALETTE_ID];
 
 function makeStyles(theme) {
   return StyleSheet.create({
@@ -198,5 +192,94 @@ export function CardFace({ card }) {
       </View>
       <Ornament flipped />
     </Surface>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * 戻るボタン・丸ボタン。
+ *
+ * 設定・練習・あてっこ・種明かし・本番・ホームなど、ほとんどの画面が
+ * 同じ形のボタン（‹ の戻る／枠線か塗りつぶしの丸ボタン／文字だけのボタン）を
+ * それぞれ別々に定義していたので、ここに共通化した。
+ *
+ * padding や letterSpacing は画面ごとに少しずつ違う（意図的な差もある）ため
+ * 値そのものは変えず、style / textStyle で呼び出し側から上書きできるように
+ * してある。
+ * ------------------------------------------------------------------ */
+
+function chromeStyles(theme) {
+  return StyleSheet.create({
+    back: {
+      position: 'absolute',
+      top: 6,
+      left: 10,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      zIndex: 2,
+    },
+    backText: { color: theme.ink, fontSize: 40, lineHeight: 44 },
+
+    pill: {
+      alignSelf: 'center',
+      paddingVertical: 15,
+      paddingHorizontal: 40,
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: theme.accent,
+    },
+    pillFilled: { backgroundColor: theme.accent },
+    pillText: { color: theme.accent, fontSize: 16, letterSpacing: 4, marginLeft: 4 },
+    pillTextFilled: { color: theme.backdrop },
+
+    text: { alignSelf: 'center', padding: 14 },
+    textLabel: { color: theme.inkSoft, fontSize: 16, letterSpacing: 2 },
+  });
+}
+
+/** 「‹」の戻るボタン。置き場所は画面ごとに少し違うので style で上書きできる */
+export function BackLink({ onPress, style }) {
+  const theme = useTheme();
+  const styles = useMemo(() => chromeStyles(theme), [theme]);
+  return (
+    <Pressable
+      onPress={onPress}
+      hitSlop={20}
+      style={({ pressed }) => [styles.back, style, pressed && { opacity: 0.4 }]}
+    >
+      <Text style={styles.backText}>‹</Text>
+    </Pressable>
+  );
+}
+
+/**
+ * 枠線（filled を渡すと塗りつぶし）の丸ボタン。
+ * padding・letterSpacing は画面によって違うので style / textStyle で上書きする。
+ */
+export function PillButton({ onPress, children, filled, style, textStyle }) {
+  const theme = useTheme();
+  const styles = useMemo(() => chromeStyles(theme), [theme]);
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.pill,
+        filled && styles.pillFilled,
+        style,
+        pressed && { opacity: filled ? 0.7 : 0.55 },
+      ]}
+    >
+      <Text style={[styles.pillText, filled && styles.pillTextFilled, textStyle]}>{children}</Text>
+    </Pressable>
+  );
+}
+
+/** 枠なし・文字だけのボタン（「練習」「設定を変える」など） */
+export function TextButton({ onPress, children, style, textStyle }) {
+  const theme = useTheme();
+  const styles = useMemo(() => chromeStyles(theme), [theme]);
+  return (
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.text, style, pressed && { opacity: 0.5 }]}>
+      <Text style={[styles.textLabel, textStyle]}>{children}</Text>
+    </Pressable>
   );
 }
