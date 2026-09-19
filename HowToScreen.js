@@ -49,7 +49,7 @@ function makeStyles(theme) {
     root: { flex: 1, backgroundColor: theme.backdrop },
     body: { paddingTop: 44, paddingBottom: 50, paddingHorizontal: 36 },
 
-    back: { top: 14, left: 18, paddingVertical: 4 },
+    back: { top: 60, left: 18, paddingVertical: 4 },
 
     title: {
       color: theme.ink,

@@ -211,7 +211,7 @@ function chromeStyles(theme) {
   return StyleSheet.create({
     back: {
       position: 'absolute',
-      top: 6,
+      top: 52,
       left: 10,
       paddingHorizontal: 10,
       paddingVertical: 6,

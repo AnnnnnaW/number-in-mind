@@ -273,7 +273,7 @@ function makeStyles(theme) {
     },
 
     // BackLink(ui.js)への上書き分だけ残す
-    back: { top: 14, left: 18, paddingVertical: 4 },
+    back: { top: 60, left: 18, paddingVertical: 4 },
 
     endBody: {
       flex: 1,

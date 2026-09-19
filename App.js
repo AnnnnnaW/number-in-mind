@@ -299,7 +299,7 @@ function makeStyles(theme) {
     footerLinkText: { color: theme.inkFaint, fontSize: 14, letterSpacing: 2 },
     help: {
       position: 'absolute',
-      top: 14,
+      top: 60,
       right: 22,
       width: 36,
       height: 36,

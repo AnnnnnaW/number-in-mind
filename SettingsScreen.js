@@ -197,7 +197,7 @@ function makeStyles(theme) {
     body: { paddingTop: 44, paddingBottom: 50, paddingHorizontal: 28 },
 
     // BackLink(ui.js)への上書き分だけ残す
-    back: { top: 14, left: 18, paddingVertical: 4 },
+    back: { top: 60, left: 18, paddingVertical: 4 },
 
     h1: {
       color: theme.ink,
