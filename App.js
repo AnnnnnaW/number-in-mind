@@ -11,6 +11,7 @@ import PracticeScreen from './PracticeScreen';
 import GuessScreen from './GuessScreen';
 import IntroScreen from './IntroScreen';
 import ExplainScreen from './ExplainScreen';
+import HowToScreen from './HowToScreen';
 import SettingsScreen from './SettingsScreen';
 
 /**
@@ -30,6 +31,7 @@ const MODE = {
   PRACTICE: 'practice',
   GUESS: 'guess',
   EXPLAIN: 'explain',
+  HOWTO: 'howto',
   SETTINGS: 'settings',
 };
 
@@ -105,11 +107,6 @@ function AppInner() {
     setMode(MODE.EXPLAIN);
   }, []);
 
-  const replayIntro = useCallback(() => {
-    setMode(null);
-    setShowIntro(true);
-  }, []);
-
   // 設定の読み込み中。背景色だけ出しておいて画面のちらつきを防ぐ
   if (!ready) {
     return (
@@ -159,7 +156,7 @@ function AppInner() {
     return (
       <>
         <StatusBar hidden />
-        <SettingsScreen onExit={() => setMode(null)} onReplayIntro={replayIntro} />
+        <SettingsScreen onExit={() => setMode(null)} />
       </>
     );
   }
@@ -173,12 +170,31 @@ function AppInner() {
     );
   }
 
+  if (mode === MODE.HOWTO) {
+    return (
+      <>
+        <StatusBar hidden />
+        <HowToScreen onClose={() => setMode(null)} />
+      </>
+    );
+  }
+
   const glowOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0, 0.55] });
   const markScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.06] });
 
   return (
     <SafeAreaView style={styles.root}>
       <StatusBar hidden />
+
+      <Pressable
+        onPress={() => setMode(MODE.HOWTO)}
+        hitSlop={10}
+        accessibilityRole="button"
+        accessibilityLabel={t('home.howto')}
+        style={({ pressed }) => [styles.help, pressed && { opacity: 0.5 }]}
+      >
+        <Text style={styles.helpMark}>?</Text>
+      </Pressable>
 
       <Pressable onPress={openExplain} hitSlop={18}>
         <Animated.View style={[styles.mark, { transform: [{ scale: markScale }] }]}>
@@ -281,5 +297,23 @@ function makeStyles(theme) {
     },
     footerLink: { marginTop: 8, padding: 10 },
     footerLinkText: { color: theme.inkFaint, fontSize: 14, letterSpacing: 2 },
+    help: {
+      position: 'absolute',
+      top: 14,
+      right: 22,
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: theme.accentFaint,
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 2,
+    },
+    helpMark: {
+      color: theme.inkSoft,
+      fontSize: 18,
+      lineHeight: 22,
+    },
   });
 }

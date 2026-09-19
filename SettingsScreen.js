@@ -29,7 +29,7 @@ import { t } from "./i18n";
 
 const APP_STORE_URL = "https://apps.apple.com/us/app/number-in-mind/id6801572572";
 
-export default function SettingsScreen({ onExit, onReplayIntro }) {
+export default function SettingsScreen({ onExit }) {
   const { theme, paletteId, fontId, setPaletteId, setFontId } =
     useThemeSettings();
   const styles = useMemo(() => makeStyles(theme), [theme]);
@@ -110,12 +110,6 @@ export default function SettingsScreen({ onExit, onReplayIntro }) {
 
         <Text style={styles.label}>{t("settings.helpShare")}</Text>
         <View style={styles.helpColumn}>
-          <Pressable
-            onPress={onReplayIntro}
-            style={({ pressed }) => [styles.helpRow, pressed && { opacity: 0.6 }]}
-          >
-            <Text style={styles.helpText}>{t("settings.replayIntro")}</Text>
-          </Pressable>
           <Pressable
             onPress={shareApp}
             style={({ pressed }) => [styles.helpRow, pressed && { opacity: 0.6 }]}

@@ -47,7 +47,7 @@ const SWIPE_RATIO = 0.2; // 画面幅のこれだけ動かせばめくれる
 const SWIPE_VELOCITY = 0.35; // 速く払ったときはこの速度でめくれる
 
 /** 最後の面。数字は出さない */
-function EndFace({ onRestart, styles }) {
+function EndFace({ onHome, styles }) {
   return (
     <Surface>
       <Ornament />
@@ -63,7 +63,7 @@ function EndFace({ onRestart, styles }) {
         </Text>
       </View>
       <Pressable
-        onPress={onRestart}
+        onPress={onHome}
         hitSlop={16}
         style={({ pressed }) => [styles.restart, pressed && { opacity: 0.5 }]}
       >
@@ -143,13 +143,6 @@ export default function PerformanceScreen({ onExit }) {
       tension: 70,
       useNativeDriver: true,
     }).start();
-  }, [offset]);
-
-  const restart = useCallback(() => {
-    if (busy.current) return;
-    offset.setValue(0);
-    setIndex(0);
-    setStarted(false);
   }, [offset]);
 
   const handlers = useRef({ settle, springBack });
@@ -234,7 +227,7 @@ export default function PerformanceScreen({ onExit }) {
               style={[styles.page, { width, transform: [{ rotate }, { scale }] }]}
             >
               {i >= END_INDEX ? (
-                <EndFace onRestart={restart} styles={styles} />
+                <EndFace onHome={onExit} styles={styles} />
               ) : (
                 <CardFace card={CARDS[i]} />
               )}

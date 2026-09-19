@@ -40,6 +40,7 @@ const ja = {
   "home.practice": "練習",
   "home.guess": "アプリが当てる",
   "home.settings": "設定",
+  "home.howto": "遊び方",
 
   // 共通
   "common.yes": "ある",
@@ -56,8 +57,7 @@ const ja = {
   "settings.keepAwake": "スリープ防止",
   "settings.keepAwakeNote": "プレイ中、画面が暗くならないようにします。",
   "settings.note": "変更はその場で反映され、次回起動時も同じ設定で開きます。",
-  "settings.helpShare": "ヘルプ・共有",
-  "settings.replayIntro": "イントロをもう一度見る",
+  "settings.helpShare": "共有",
   "settings.shareApp": "アプリをシェア",
   "settings.shareText":
     "『Number in mind』、数字当てカードのマジックアプリ。使ってみて！",
@@ -98,7 +98,23 @@ const ja = {
   "perform.hint": "カードは横に払うとめくれます",
   "perform.end1": "あなたの思い浮かべた",
   "perform.end2": "数字は",
-  "perform.restart": "もう一度",
+  "perform.restart": "ホームに戻る",
+
+  // 遊び方
+  "howto.title": "遊び方",
+  "howto.performTitle": "自分で当てる",
+  "howto.perform1":
+    "相手に 1 〜 {max} の好きな数字をひとつ思い浮かべてもらい、カードを1枚ずつ見せます。",
+  "howto.perform2":
+    "その数字があれば「ある」、なければ「ない」と答えてもらってください。カードは横に払うとめくれます。",
+  "howto.perform3":
+    "{count} 枚全て答えてもらったあとに、「あなたの思い浮かべた数字は…」が出たら、あなたが数字を言います。",
+  "howto.guessTitle": "アプリが当てる",
+  "howto.guess1":
+    "自分で数字を思い浮かべ、カードごとに「ある / ない」を押します。",
+  "howto.guess2": "最後に、アプリがあなたの数字を当てます。",
+  "howto.secret1": "どうして数字が分かるのか。",
+  "howto.secret2": "そのヒントは、ホーム画面のどこかに隠れています。",
 
   // 種明かし
   "explain.eyebrow": "見つけましたね",
@@ -160,6 +176,7 @@ const en = {
   "home.practice": "Practice",
   "home.guess": "App Guesses",
   "home.settings": "Settings",
+  "home.howto": "How to play",
 
   "common.yes": "Yes",
   "common.no": "No",
@@ -174,8 +191,7 @@ const en = {
   "settings.keepAwake": "Keep screen awake",
   "settings.keepAwakeNote": "Stops the screen from dimming while you play.",
   "settings.note": "Changes apply right away and are kept for next time.",
-  "settings.helpShare": "Help & Share",
-  "settings.replayIntro": "Watch the intro again",
+  "settings.helpShare": "Share",
   "settings.shareApp": "Share this app",
   "settings.shareText":
     "Number in mind — a number-guessing card trick app. Check it out!",
@@ -214,7 +230,21 @@ const en = {
   "perform.hint": "Swipe sideways to flip the cards",
   "perform.end1": "The number",
   "perform.end2": "you thought of is",
-  "perform.restart": "Again",
+  "perform.restart": "Back to Home",
+
+  "howto.title": "How to play",
+  "howto.performTitle": "You Guess",
+  "howto.perform1":
+    "Ask someone to pick a number from 1 to {max}, then show them the cards one at a time.",
+  "howto.perform2":
+    'They say "Yes" if their number is there, "No" if it isn\'t. Swipe sideways to flip the cards.',
+  "howto.perform3":
+    'After they\'ve answered all {count} cards, "The number you thought of is…" appears — then you tell them their number.',
+  "howto.guessTitle": "App Guesses",
+  "howto.guess1": "Think of a number yourself and tap Yes or No for each card.",
+  "howto.guess2": "At the end, the app will guess your number.",
+  "howto.secret1": "How do you know the number?",
+  "howto.secret2": "A hint is also hidden somewhere on the home screen.",
 
   "explain.eyebrow": "You found it",
   "explain.title": "The secret",

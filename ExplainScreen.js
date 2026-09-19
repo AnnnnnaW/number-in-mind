@@ -102,8 +102,8 @@ export default function ExplainScreen({ number, onClose }) {
 
 function makeStyles(theme) {
   return StyleSheet.create({
-    root: { flex: 1, backgroundColor: theme.backdrop, paddingHorizontal: 36 },
-    body: { paddingTop: 34, paddingBottom: 50 },
+    root: { flex: 1, backgroundColor: theme.backdrop },
+    body: { paddingTop: 34, paddingBottom: 50, paddingHorizontal: 36 },
 
     eyebrow: { color: theme.accent, fontSize: 14, letterSpacing: 4, textAlign: 'center' },
     title: {
