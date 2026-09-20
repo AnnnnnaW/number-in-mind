@@ -86,8 +86,6 @@ export default function GuessScreen({ onExit }) {
 
     return (
       <SafeAreaView style={styles.root}>
-        <BackLink onPress={onExit} />
-
         <View style={styles.stage}>
           <Animated.View style={[StyleSheet.absoluteFill, { opacity, transform: [{ translateX }] }]}>
             <CardFace card={CARDS[guess.index]} />
